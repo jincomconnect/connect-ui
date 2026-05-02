@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Users, Check, Image, MapPin, ChevronDown, ChevronUp, Plus, Trash2, Wifi } from "lucide-react";
+import { X, Users, Check, Image, MapPin, ChevronDown, ChevronUp, Plus, Trash2, Wifi, TrendingUp, ArrowLeft, Eye } from "lucide-react";
 
 const allCommunities = [
   { id: "1", name: "Local Designers", color: "from-purple-500 to-pink-500", category: "Design" },
@@ -75,6 +75,7 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
   const [isOnline, setIsOnline] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [mediaCount, setMediaCount] = useState(0);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Reset form when opening
   useEffect(() => {
@@ -90,6 +91,7 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
       setActiveCommunityTab(defaultCommunityId || "");
       setSubmitted(false);
       setMediaCount(0);
+      setShowPreview(false);
     }
   }, [isOpen, defaultCommunityId]);
 
@@ -237,7 +239,19 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
               <>
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-neutral-200 flex-shrink-0">
-                  <h2 className="text-lg font-bold text-neutral-900">Create Post</h2>
+                  <div className="flex items-center gap-2">
+                    {showPreview && (
+                      <button
+                        onClick={() => setShowPreview(false)}
+                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors mr-1"
+                      >
+                        <ArrowLeft size={18} className="text-neutral-600" />
+                      </button>
+                    )}
+                    <h2 className="text-lg font-bold text-neutral-900">
+                      {showPreview ? "Post Preview" : "Create Post"}
+                    </h2>
+                  </div>
                   <button
                     onClick={onClose}
                     className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors"
@@ -248,6 +262,133 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
 
                 {/* Scrollable Body */}
                 <div className="flex-1 overflow-y-auto">
+                  {showPreview ? (
+                    /* ── Preview Card ── */
+                    (() => {
+                      const previewContent = sharedContent;
+                      const firstCommunity = allCommunities.find(c => c.id === selectedCommunities[0]);
+                      const locationLabel = isInPerson && isOnline
+                        ? `${location || "Your City"} · Online`
+                        : isOnline
+                        ? "Online / Remote"
+                        : location || "Your City";
+                      return (
+                        <div className="p-6">
+                          <p className="text-xs text-neutral-400 mb-4 text-center">This is how your post will appear in the feed</p>
+                          <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-sm">
+                            {/* Post Header */}
+                            <div className="p-5 pb-3">
+                              <div className="flex items-start gap-3 mb-3">
+                                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-neutral-800 to-neutral-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                                  JD
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="font-semibold text-neutral-900 text-sm">John Doe</span>
+                                    <span className="text-neutral-400 text-xs">in</span>
+                                    {firstCommunity ? (
+                                      <div className="flex items-center gap-1">
+                                        <div className={`w-4 h-4 rounded-[4px] bg-gradient-to-br ${firstCommunity.color} flex items-center justify-center`}>
+                                          <Users size={9} className="text-white" />
+                                        </div>
+                                        <span className="text-xs font-medium text-neutral-700">{firstCommunity.name}</span>
+                                        {selectedCommunities.length > 1 && (
+                                          <span className="text-xs text-neutral-400">+{selectedCommunities.length - 1} more</span>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      <span className="text-xs text-neutral-400 italic">No community selected</span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-1.5 text-xs text-neutral-400 mt-0.5">
+                                    <MapPin size={11} />
+                                    <span>{locationLabel}</span>
+                                    <span>·</span>
+                                    <span>Just now</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Badges */}
+                              <div className="flex items-center gap-2 flex-wrap mb-3">
+                                <span className={`px-2 py-0.5 text-xs font-medium rounded-md ${
+                                  postType === "offering" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
+                                }`}>
+                                  {postType === "offering" ? "Offering Service" : "Seeking Service"}
+                                </span>
+                                {previewContent.category && (
+                                  <span className="px-2 py-0.5 bg-neutral-100 text-neutral-600 text-xs font-medium rounded-md">
+                                    {previewContent.category}
+                                  </span>
+                                )}
+                                {isOnline && (
+                                  <span className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-medium rounded-md">
+                                    <Wifi size={10} /> Online
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Title */}
+                              <h2 className="text-lg font-bold text-neutral-900 mb-1.5 flex items-center gap-2">
+                                <TrendingUp size={18} className="text-neutral-600 flex-shrink-0" />
+                                <span>{previewContent.serviceTitle || <span className="text-neutral-300 italic font-normal text-base">Service title will appear here</span>}</span>
+                              </h2>
+
+                              {/* Description */}
+                              <p className="text-sm text-neutral-600 leading-relaxed">
+                                {previewContent.description || <span className="text-neutral-300 italic">Description will appear here…</span>}
+                              </p>
+
+                              {/* Price */}
+                              {(previewContent.price || previewContent.priceType) && (
+                                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-neutral-900 text-white rounded-lg text-sm font-semibold">
+                                  {previewContent.price ? `$${Number(previewContent.price).toLocaleString()}` : ""}
+                                  {previewContent.priceType && (
+                                    <span className="font-normal text-neutral-300 text-xs">{previewContent.priceType}</span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Media placeholder */}
+                            {mediaCount > 0 && (
+                              <div className="mx-5 mb-4 h-40 bg-neutral-100 rounded-xl flex flex-col items-center justify-center gap-2 border-2 border-dashed border-neutral-200">
+                                <Image size={24} className="text-neutral-300" />
+                                <span className="text-xs text-neutral-400">{mediaCount} photo{mediaCount > 1 ? "s" : ""} attached</span>
+                              </div>
+                            )}
+
+                            {/* Action bar */}
+                            <div className="px-5 py-3 border-t border-neutral-100 flex items-center justify-between">
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-1.5 text-neutral-300 text-sm">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                  <span>0</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 text-neutral-300 text-sm">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                  <span>0</span>
+                                </div>
+                              </div>
+                              <span className="text-xs text-neutral-300">Share</span>
+                            </div>
+                          </div>
+
+                          {/* Empty field warnings */}
+                          {(!previewContent.serviceTitle || !previewContent.description || !previewContent.category) && (
+                            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                              <p className="text-xs font-medium text-amber-700 mb-1">Missing fields</p>
+                              <ul className="text-xs text-amber-600 space-y-0.5">
+                                {!previewContent.serviceTitle && <li>· Service title</li>}
+                                {!previewContent.category && <li>· Category</li>}
+                                {!previewContent.description && <li>· Description</li>}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()
+                  ) : (
                   <div className="p-6 space-y-8">
 
                     {/* Section 1: Post Type */}
@@ -600,12 +741,13 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
                     {/* Bottom padding for sticky button */}
                     <div className="h-4" />
                   </div>
+                  )}
                 </div>
 
-                {/* Sticky Submit */}
+                {/* Sticky Footer */}
                 <div className="flex-shrink-0 px-6 py-4 bg-white border-t border-neutral-200">
-                  {/* Summary pill */}
-                  {selectedCommunities.length > 0 && (
+                  {/* Summary pills — only on form view */}
+                  {!showPreview && selectedCommunities.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mb-3">
                       {selectedCommunities.map(id => {
                         const c = allCommunities.find(c => c.id === id);
@@ -619,19 +761,34 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
                       })}
                     </div>
                   )}
-                  <button
-                    onClick={handleSubmit}
-                    disabled={!isFormValid()}
-                    className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all ${
-                      isFormValid()
-                        ? "bg-neutral-900 text-white hover:bg-neutral-800 active:scale-[0.98]"
-                        : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
-                    }`}
-                  >
-                    {selectedCommunities.length === 0
-                      ? "Select communities to continue"
-                      : `Submit to ${selectedCommunities.length} ${selectedCommunities.length === 1 ? "Community" : "Communities"}`}
-                  </button>
+                  <div className="flex gap-3">
+                    {/* Preview / Back button */}
+                    <button
+                      onClick={() => setShowPreview(v => !v)}
+                      className="flex items-center gap-2 px-4 py-3.5 rounded-xl font-semibold text-sm border-2 border-neutral-200 text-neutral-700 hover:border-neutral-400 transition-all flex-shrink-0"
+                    >
+                      {showPreview ? (
+                        <><ArrowLeft size={15} /> Edit</>
+                      ) : (
+                        <><Eye size={15} /> Preview</>
+                      )}
+                    </button>
+
+                    {/* Submit */}
+                    <button
+                      onClick={handleSubmit}
+                      disabled={!isFormValid()}
+                      className={`flex-1 py-3.5 rounded-xl font-semibold text-sm transition-all ${
+                        isFormValid()
+                          ? "bg-neutral-900 text-white hover:bg-neutral-800 active:scale-[0.98]"
+                          : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
+                      }`}
+                    >
+                      {selectedCommunities.length === 0
+                        ? "Select communities to continue"
+                        : `Submit to ${selectedCommunities.length} ${selectedCommunities.length === 1 ? "Community" : "Communities"}`}
+                    </button>
+                  </div>
                 </div>
               </>
             )}
