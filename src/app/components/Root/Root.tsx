@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Outlet, useLocation, Link, useNavigate } from "react-router";
-import { Home, Users, Shield, LogOut, Mail, MapPin, Calendar, ChevronRight, Search, ChevronLeft, Menu, Settings, HelpCircle, User, ChevronDown, Megaphone, Bell, TrendingUp, FileText } from "lucide-react";
+import { Home, Users, Shield, LogOut, Mail, MapPin, Calendar, ChevronRight, Search, ChevronLeft, Menu, Settings, HelpCircle, User, ChevronDown, Megaphone, Bell, TrendingUp, FileText, UserPlus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useSidebar } from "../../context/SidebarContext";
+import { JoinCommunityModal } from "../JoinCommunity/JoinCommunityModal";
 import "./Root.css";
 
 // Mock user data - replace with real data from Supabase
@@ -102,6 +103,7 @@ export function Root() {
   const [searchQuery, setSearchQuery] = useState("");
   const [offeringOpen, setOfferingOpen] = useState(true);
   const [seekingOpen, setSeekingOpen] = useState(true);
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const { isSidebarCollapsed, setIsSidebarCollapsed } = useSidebar();
 
   // Check if we're on a community detail page
@@ -186,6 +188,14 @@ export function Root() {
                   <Users size={18} />
                   <span className="hidden xl:inline">Communities</span>
                 </Link>
+
+                <button
+                  onClick={() => setIsJoinModalOpen(true)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-all whitespace-nowrap font-medium text-sm"
+                >
+                  <UserPlus size={16} />
+                  <span className="hidden xl:inline">Join</span>
+                </button>
               </div>
             </div>
 
@@ -565,6 +575,11 @@ export function Root() {
           <Outlet />
         </main>
       </div>
+
+      <JoinCommunityModal
+        isOpen={isJoinModalOpen}
+        onClose={() => setIsJoinModalOpen(false)}
+      />
     </div>
   );
 }
