@@ -37,11 +37,11 @@ const mockUserPosts = [
 
 // Mock communities - replace with real data from Supabase
 const mockUserCommunities = [
-  { id: "1", name: "Local Designers", color: "from-purple-500 to-pink-500", notifications: 3 },
-  { id: "2", name: "Tech Freelancers", color: "from-blue-500 to-cyan-500", notifications: 7 },
-  { id: "3", name: "Marketing Pros", color: "from-green-500 to-emerald-500", notifications: 0 },
-  { id: "4", name: "Photography Community", color: "from-orange-500 to-red-500", notifications: 2 },
-  { id: "5", name: "Wellness Network", color: "from-teal-500 to-green-500", notifications: 1 }
+  { id: "1", name: "Local Designers", color: "from-purple-500 to-pink-500", notifications: 3, isAdmin: true },
+  { id: "2", name: "Tech Freelancers", color: "from-blue-500 to-cyan-500", notifications: 7, isAdmin: false },
+  { id: "3", name: "Marketing Pros", color: "from-green-500 to-emerald-500", notifications: 0, isAdmin: true },
+  { id: "4", name: "Photography Community", color: "from-orange-500 to-red-500", notifications: 2, isAdmin: false },
+  { id: "5", name: "Wellness Network", color: "from-teal-500 to-green-500", notifications: 1, isAdmin: false }
 ];
 
 // Mock notification counts - replace with real data from Supabase
@@ -554,6 +554,11 @@ export function Root() {
                             {community.notifications > 0 && (
                               <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium border-2 border-white">
                                 {community.notifications > 9 ? '9+' : community.notifications}
+                              </span>
+                            )}
+                            {community.isAdmin && (
+                              <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-amber-400 rounded-full flex items-center justify-center border-2 border-white">
+                                <Shield size={8} className="text-white" fill="white" />
                               </span>
                             )}
                           </div>

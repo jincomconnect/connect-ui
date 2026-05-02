@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { motion } from "motion/react";
-import { Users, Star, TrendingUp, Clock } from "lucide-react";
+import { Users, Star, TrendingUp, Clock, Shield } from "lucide-react";
 import "./Communities.css";
 
 interface Community {
@@ -11,6 +11,7 @@ interface Community {
   posts: number;
   category: string;
   joined: string;
+  isAdmin: boolean;
 }
 
 // Mock data - replace with real data from Supabase
@@ -22,7 +23,8 @@ const mockCommunities: Community[] = [
     members: 1247,
     posts: 3891,
     category: "Design",
-    joined: "3 months ago"
+    joined: "3 months ago",
+    isAdmin: true
   },
   {
     id: "2",
@@ -31,7 +33,8 @@ const mockCommunities: Community[] = [
     members: 2103,
     posts: 5672,
     category: "Technology",
-    joined: "6 months ago"
+    joined: "6 months ago",
+    isAdmin: false
   },
   {
     id: "3",
@@ -40,7 +43,8 @@ const mockCommunities: Community[] = [
     members: 892,
     posts: 2341,
     category: "Marketing",
-    joined: "2 months ago"
+    joined: "2 months ago",
+    isAdmin: true
   },
   {
     id: "4",
@@ -49,7 +53,8 @@ const mockCommunities: Community[] = [
     members: 1534,
     posts: 4219,
     category: "Creative",
-    joined: "4 months ago"
+    joined: "4 months ago",
+    isAdmin: false
   },
   {
     id: "5",
@@ -58,7 +63,8 @@ const mockCommunities: Community[] = [
     members: 678,
     posts: 1823,
     category: "Health",
-    joined: "1 month ago"
+    joined: "1 month ago",
+    isAdmin: false
   }
 ];
 
@@ -89,8 +95,13 @@ export function Communities() {
               {/* Community Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-600 flex items-center justify-center">
+                  <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-600 flex items-center justify-center flex-shrink-0">
                     <Users className="text-white" size={24} />
+                    {community.isAdmin && (
+                      <span className="absolute -bottom-1.5 -right-1.5 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center border-2 border-white">
+                        <Shield size={10} className="text-white" fill="white" />
+                      </span>
+                    )}
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-neutral-900">{community.name}</h2>
