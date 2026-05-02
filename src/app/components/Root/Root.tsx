@@ -38,11 +38,11 @@ const mockUserPosts = [
 
 // Mock communities - replace with real data from Supabase
 const mockUserCommunities = [
-  { id: "1", name: "Local Designers", color: "from-purple-500 to-pink-500", notifications: 3, isAdmin: true },
-  { id: "2", name: "Tech Freelancers", color: "from-blue-500 to-cyan-500", notifications: 7, isAdmin: false },
-  { id: "3", name: "Marketing Pros", color: "from-green-500 to-emerald-500", notifications: 0, isAdmin: true },
-  { id: "4", name: "Photography Community", color: "from-orange-500 to-red-500", notifications: 2, isAdmin: false },
-  { id: "5", name: "Wellness Network", color: "from-teal-500 to-green-500", notifications: 1, isAdmin: false }
+  { id: "1", name: "Local Designers", color: "from-purple-500 to-pink-500", notifications: 3, isAdmin: true, isCreator: true },
+  { id: "2", name: "Tech Freelancers", color: "from-blue-500 to-cyan-500", notifications: 7, isAdmin: false, isCreator: false },
+  { id: "3", name: "Marketing Pros", color: "from-green-500 to-emerald-500", notifications: 0, isAdmin: true, isCreator: false },
+  { id: "4", name: "Photography Community", color: "from-orange-500 to-red-500", notifications: 2, isAdmin: false, isCreator: true },
+  { id: "5", name: "Wellness Network", color: "from-teal-500 to-green-500", notifications: 1, isAdmin: false, isCreator: false }
 ];
 
 // Mock notification counts - replace with real data from Supabase
@@ -416,6 +416,22 @@ export function Root() {
                         <div className="flex items-center gap-2 text-sm text-neutral-600">
                           <Calendar size={14} />
                           Joined {mockUser.joinedDate}
+                        </div>
+                      </div>
+
+                      {/* Community Stats */}
+                      <div className="grid grid-cols-3 gap-2 mt-4">
+                        <div className="bg-neutral-50 rounded-xl p-3 text-center">
+                          <p className="text-xl font-bold text-neutral-900">{mockUserCommunities.length}</p>
+                          <p className="text-[11px] text-neutral-500 mt-0.5 leading-tight">Communities</p>
+                        </div>
+                        <div className="bg-neutral-50 rounded-xl p-3 text-center">
+                          <p className="text-xl font-bold text-neutral-900">{mockUserCommunities.filter(c => c.isAdmin).length}</p>
+                          <p className="text-[11px] text-neutral-500 mt-0.5 leading-tight">Admin Access</p>
+                        </div>
+                        <div className="bg-neutral-50 rounded-xl p-3 text-center">
+                          <p className="text-xl font-bold text-neutral-900">{mockUserCommunities.filter(c => c.isCreator).length}</p>
+                          <p className="text-[11px] text-neutral-500 mt-0.5 leading-tight">Created</p>
                         </div>
                       </div>
                     </div>
