@@ -800,18 +800,15 @@ function ContentFields({ content, postType, onUpdate }: ContentFieldsProps) {
 
                     {/* Gradient track + slider */}
                     <div className="relative h-3">
-                      {/* Full gradient background (dimmed) */}
+                      {/* Single full-width gradient bar */}
                       <div
-                        className="absolute inset-0 rounded-full opacity-25"
+                        className="absolute inset-0 rounded-full"
                         style={{ background: "linear-gradient(to right, #eab308, #22c55e, #f97316)" }}
                       />
-                      {/* Filled portion */}
+                      {/* Grey mask over unselected right portion */}
                       <div
-                        className="absolute left-0 top-0 bottom-0 rounded-full"
-                        style={{
-                          width: `${pct}%`,
-                          background: "linear-gradient(to right, #eab308, #22c55e, #f97316)",
-                        }}
+                        className="absolute top-0 right-0 bottom-0 rounded-r-full bg-neutral-200/80"
+                        style={{ width: `${100 - pct}%` }}
                       />
                       {/* Range input */}
                       <input
