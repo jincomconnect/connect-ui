@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet, useLocation, Link, useNavigate } from "react-router";
-import { Home, Users, Shield, LogOut, Mail, MapPin, Calendar, ChevronRight, Search, ChevronLeft, Menu, Settings, HelpCircle, User, ChevronDown, Megaphone, Bell } from "lucide-react";
+import { Home, Users, Shield, LogOut, Mail, MapPin, Calendar, ChevronRight, Search, ChevronLeft, Menu, Settings, HelpCircle, User, ChevronDown, Megaphone, Bell, TrendingUp, Telescope } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useSidebar } from "../../context/SidebarContext";
@@ -14,6 +14,20 @@ const mockUser = {
   joinedDate: "January 2026",
   bio: "Passionate about connecting communities and sharing knowledge"
 };
+
+// Mock user service categories - replace with real data from Supabase
+const mockUserOffering = [
+  { label: "Graphic Design", color: "bg-purple-100 text-purple-700" },
+  { label: "Logo Design", color: "bg-pink-100 text-pink-700" },
+  { label: "UI/UX", color: "bg-indigo-100 text-indigo-700" },
+  { label: "Branding", color: "bg-violet-100 text-violet-700" },
+];
+
+const mockUserSeeking = [
+  { label: "Web Development", color: "bg-blue-100 text-blue-700" },
+  { label: "Copywriting", color: "bg-cyan-100 text-cyan-700" },
+  { label: "Photography", color: "bg-orange-100 text-orange-700" },
+];
 
 // Mock communities - replace with real data from Supabase
 const mockUserCommunities = [
@@ -370,6 +384,50 @@ export function Root() {
 
                     {/* Divider */}
                     <div className="h-px bg-neutral-200 mb-6"></div>
+                  </>
+                )}
+
+                {/* Services I Provide & Seek — shown on home/feed pages */}
+                {!currentCommunity && (
+                  <>
+                    {/* What I Offer */}
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-2.5">
+                        <div className="flex items-center gap-1.5">
+                          <TrendingUp size={14} className="text-green-600" />
+                          <h4 className="text-sm font-semibold text-neutral-900">Services I Provide</h4>
+                        </div>
+                        <button className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors">Edit</button>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {mockUserOffering.map(tag => (
+                          <span key={tag.label} className={`px-2.5 py-1 rounded-full text-xs font-medium ${tag.color}`}>
+                            {tag.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* What I Seek */}
+                    <div className="mb-6">
+                      <div className="flex items-center justify-between mb-2.5">
+                        <div className="flex items-center gap-1.5">
+                          <Search size={14} className="text-blue-600" />
+                          <h4 className="text-sm font-semibold text-neutral-900">Services I Seek</h4>
+                        </div>
+                        <button className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors">Edit</button>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {mockUserSeeking.map(tag => (
+                          <span key={tag.label} className={`px-2.5 py-1 rounded-full text-xs font-medium ${tag.color}`}>
+                            {tag.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="h-px bg-neutral-200 mb-6" />
                   </>
                 )}
 
