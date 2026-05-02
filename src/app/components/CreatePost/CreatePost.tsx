@@ -93,6 +93,16 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
     }
   }, [isOpen, defaultCommunityId]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [isOpen]);
+
   // Close community dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -178,7 +188,7 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
             onClick={onClose}
           />
 
