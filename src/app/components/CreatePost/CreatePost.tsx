@@ -24,10 +24,24 @@ interface CommunityContent {
   priceType: string;
 }
 
+export interface EditInitialData {
+  postType: "offering" | "seeking";
+  communityIds: string[];
+  location: string;
+  isInPerson: boolean;
+  isOnline: boolean;
+  serviceTitle: string;
+  category: string;
+  description: string;
+  price: string;
+  priceType: string;
+}
+
 interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultCommunityId?: string;
+  editPost?: EditInitialData;
 }
 
 const emptyContent = (): CommunityContent => ({
@@ -59,7 +73,7 @@ const communityPricing: Record<string, { low: number; median: number; high: numb
 };
 const defaultPricing = { low: 20, median: 75, high: 250 };
 
-export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreatePostModalProps) {
+export function CreatePostModal({ isOpen, onClose, defaultCommunityId, editPost }: CreatePostModalProps) {
   const [postType, setPostType] = useState<"offering" | "seeking">("offering");
   const [location, setLocation] = useState("");
   const [selectedCommunities, setSelectedCommunities] = useState<string[]>(
@@ -80,20 +94,32 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
   // Reset form when opening
   useEffect(() => {
     if (isOpen) {
-      setPostType("offering");
-      setLocation("");
-      setIsInPerson(true);
-      setIsOnline(false);
-      setSelectedCommunities(defaultCommunityId ? [defaultCommunityId] : []);
-      setCustomizePerCommunity(false);
-      setSharedContent(emptyContent());
-      setCommunityContent({});
-      setActiveCommunityTab(defaultCommunityId || "");
+      if (editPost) {
+        setPostType(editPost.postType);
+        setLocation(editPost.location);
+        setIsInPerson(editPost.isInPerson);
+        setIsOnline(editPost.isOnline);
+        setSelectedCommunities(editPost.communityIds.length > 0 ? editPost.communityIds : (defaultCommunityId ? [defaultCommunityId] : []));
+        setCustomizePerCommunity(false);
+        setSharedContent({ serviceTitle: editPost.serviceTitle, category: editPost.category, description: editPost.description, price: editPost.price, priceType: editPost.priceType });
+        setCommunityContent({});
+        setActiveCommunityTab(editPost.communityIds[0] || defaultCommunityId || "");
+      } else {
+        setPostType("offering");
+        setLocation("");
+        setIsInPerson(true);
+        setIsOnline(false);
+        setSelectedCommunities(defaultCommunityId ? [defaultCommunityId] : []);
+        setCustomizePerCommunity(false);
+        setSharedContent(emptyContent());
+        setCommunityContent({});
+        setActiveCommunityTab(defaultCommunityId || "");
+      }
       setSubmitted(false);
       setMediaCount(0);
       setShowPreview(false);
     }
-  }, [isOpen, defaultCommunityId]);
+  }, [isOpen, defaultCommunityId, editPost]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -212,9 +238,13 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
                   <Check size={36} className="text-green-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-neutral-900 mb-2">Post Submitted!</h2>
+                <h2 className="text-2xl font-bold text-neutral-900 mb-2">
+                  {editPost ? "Post Updated!" : "Post Submitted!"}
+                </h2>
                 <p className="text-neutral-600 mb-2">
-                  Your post has been submitted to {selectedCommunities.length} {selectedCommunities.length === 1 ? "community" : "communities"} for review.
+                  {editPost
+                    ? "Your changes have been saved and sent for review."
+                    : `Your post has been submitted to ${selectedCommunities.length} ${selectedCommunities.length === 1 ? "community" : "communities"} for review.`}
                 </p>
                 <div className="flex flex-wrap gap-2 justify-center mb-8">
                   {selectedCommunities.map(id => {
@@ -249,7 +279,7 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
                       </button>
                     )}
                     <h2 className="text-lg font-bold text-neutral-900">
-                      {showPreview ? "Post Preview" : "Create Post"}
+                      {showPreview ? "Post Preview" : editPost ? "Edit Post" : "Create Post"}
                     </h2>
                   </div>
                   <button
@@ -786,6 +816,8 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
                     >
                       {selectedCommunities.length === 0
                         ? "Select communities to continue"
+                        : editPost
+                        ? "Save Changes"
                         : `Submit to ${selectedCommunities.length} ${selectedCommunities.length === 1 ? "Community" : "Communities"}`}
                     </button>
                   </div>

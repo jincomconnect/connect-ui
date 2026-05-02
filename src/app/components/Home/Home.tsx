@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { Heart, MessageCircle, Share2, MapPin, TrendingUp, ChevronLeft, ChevronRight, Users, Phone, MessageSquare, Send, Plus } from "lucide-react";
+import { Heart, MessageCircle, Share2, MapPin, TrendingUp, ChevronLeft, ChevronRight, Users, Phone, MessageSquare, Send, Plus, Pencil } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { CreatePostModal } from "../CreatePost/CreatePost";
 import "./Home.css";
+
+const CURRENT_USER = "John Doe";
 
 interface Post {
   id: string;
@@ -113,6 +116,22 @@ const mockPosts: Post[] = [
     status: "approved",
     category: "Health & Wellness",
     type: "offering"
+  },
+  {
+    id: "6",
+    author: "John Doe",
+    community: "Local Designers",
+    communityLogo: "from-purple-500 to-pink-500",
+    service: "Brand Identity & Logo Design",
+    description: "Full brand identity packages for startups — logo, color palette, typography and usage guide. Turnaround in 5-7 days.",
+    location: "San Francisco, CA",
+    media: [{ type: "image" }],
+    likes: 47,
+    comments: 9,
+    timestamp: "3 days ago",
+    status: "approved",
+    category: "Design",
+    type: "offering"
   }
 ];
 
@@ -181,6 +200,30 @@ export function Home() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Edit button — only visible on current user's posts */}
+                  {post.author === CURRENT_USER && (
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <Link
+                          to="/my-posts"
+                          className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors flex-shrink-0"
+                          aria-label="Edit post"
+                        >
+                          <Pencil size={15} />
+                        </Link>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content
+                          className="bg-neutral-900 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-lg"
+                          sideOffset={5}
+                        >
+                          Edit post
+                          <Tooltip.Arrow className="fill-neutral-900" />
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  )}
                 </div>
 
                 {/* Tags */}

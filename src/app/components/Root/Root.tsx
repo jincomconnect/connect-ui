@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet, useLocation, Link, useNavigate } from "react-router";
-import { Home, Users, Shield, LogOut, Mail, MapPin, Calendar, ChevronRight, Search, ChevronLeft, Menu, Settings, HelpCircle, User, ChevronDown, Megaphone, Bell, TrendingUp } from "lucide-react";
+import { Home, Users, Shield, LogOut, Mail, MapPin, Calendar, ChevronRight, Search, ChevronLeft, Menu, Settings, HelpCircle, User, ChevronDown, Megaphone, Bell, TrendingUp, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useSidebar } from "../../context/SidebarContext";
@@ -247,6 +247,16 @@ export function Root() {
                     >
                       <User size={16} />
                       My Profile
+                    </Link>
+                  </DropdownMenu.Item>
+
+                  <DropdownMenu.Item asChild>
+                    <Link
+                      to="/my-posts"
+                      className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-700 rounded-lg hover:bg-neutral-50 outline-none cursor-pointer transition-colors"
+                    >
+                      <FileText size={16} />
+                      My Posts
                     </Link>
                   </DropdownMenu.Item>
 

@@ -11,6 +11,7 @@ import { Profile } from "./components/Profile/Profile";
 import { Settings } from "./components/Settings/Settings";
 import { Help } from "./components/Help/Help";
 import { NotFound } from "./components/NotFound/NotFound";
+import { MyPosts } from "./components/MyPosts/MyPosts";
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
       { path: "admin", Component: AdminPanel },
       { path: "search", Component: Search },
       { path: "profile", Component: Profile },
+      { path: "my-posts", Component: MyPosts },
       { path: "settings", Component: Settings },
       { path: "help", Component: Help },
       { path: "*", Component: NotFound },
