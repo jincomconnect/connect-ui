@@ -775,7 +775,6 @@ function ContentFields({ content, postType, onUpdate }: ContentFieldsProps) {
             const currentVal = content.price !== "" ? Math.min(Math.max(Number(content.price), sliderMin), sliderMax) : pricing.median;
             const pct = ((currentVal - sliderMin) / (sliderMax - sliderMin)) * 100;
             const medianPct = ((pricing.median - sliderMin) / (sliderMax - sliderMin)) * 100;
-            const thumbOffset = `calc(${pct}% - ${10 + (pct / 100) * 0}px)`;
 
             return (
               <div className="space-y-3">
@@ -787,7 +786,7 @@ function ContentFields({ content, postType, onUpdate }: ContentFieldsProps) {
                     {/* Floating value bubble */}
                     <div
                       className="absolute -top-1 flex flex-col items-center pointer-events-none"
-                      style={{ left: thumbOffset, transform: "translateX(-50%)" }}
+                      style={{ left: `${pct}%`, transform: "translateX(-50%)" }}
                     >
                       <div className="bg-neutral-900 text-white text-xs font-bold px-2 py-1 rounded-lg whitespace-nowrap shadow-md">
                         ${currentVal.toLocaleString()}
@@ -822,8 +821,8 @@ function ContentFields({ content, postType, onUpdate }: ContentFieldsProps) {
                       />
                       {/* Thumb indicator */}
                       <div
-                        className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white border-2 border-neutral-800 shadow-md pointer-events-none"
-                        style={{ left: thumbOffset, transform: "translate(-50%, -50%)" }}
+                        className="absolute top-1/2 w-5 h-5 rounded-full bg-white border-2 border-neutral-800 shadow-md pointer-events-none"
+                        style={{ left: `${pct}%`, transform: "translate(-50%, -50%)" }}
                       />
                     </div>
 
