@@ -145,6 +145,19 @@ export function Root() {
                 CommunityHub
               </Link>
 
+              {/* Persistent Home button — always visible next to logo */}
+              <Link
+                to="/"
+                aria-label="Go to home"
+                className={`flex items-center justify-center w-9 h-9 rounded-lg transition-colors flex-shrink-0 ${
+                  location.pathname === "/"
+                    ? "bg-neutral-900 text-white"
+                    : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+                }`}
+              >
+                <Home size={18} />
+              </Link>
+
               {/* Search Bar */}
               <form onSubmit={handleSearch} className="flex-1 max-w-md">
                 <div className="relative">
