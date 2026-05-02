@@ -204,9 +204,9 @@ export function Root() {
 
                 <button
                   onClick={() => setIsJoinModalOpen(true)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white transition-all whitespace-nowrap font-medium text-sm"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors whitespace-nowrap text-sm"
                 >
-                  <UserPlus size={16} />
+                  <UserPlus size={18} />
                   <span className="hidden xl:inline">Join</span>
                 </button>
               </div>
