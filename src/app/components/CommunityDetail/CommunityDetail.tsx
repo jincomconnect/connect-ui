@@ -489,6 +489,14 @@ export function CommunityDetail() {
     }));
   };
 
+  // Reset state when community changes
+  useEffect(() => {
+    setCurrentAnnouncement(0);
+    setIgnoredReminders([]);
+    setCurrentMediaIndex({});
+    setShowComments({});
+  }, [id]);
+
   // Auto-rotate announcements
   useEffect(() => {
     if (announcements.length <= 1) return;
