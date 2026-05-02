@@ -334,7 +334,7 @@ export function Root() {
       </motion.nav>
 
       {/* Main Layout with Sidebar */}
-      <div className="flex relative">
+      <div className="flex relative h-[calc(100vh-4rem)] overflow-hidden">
         {/* Left Sidebar */}
         <AnimatePresence mode="wait">
           {!isSidebarCollapsed && (
@@ -343,7 +343,7 @@ export function Root() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -320, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="hidden md:block w-80 bg-white border-r border-neutral-200 min-h-[calc(100vh-4rem)] sticky top-16 relative"
+              className="hidden md:block w-80 bg-white border-r border-neutral-200 h-full overflow-y-auto flex-shrink-0 relative"
             >
               <div className="p-6">
                 {/* Conditional: Show Community Info or User Profile */}
@@ -584,7 +584,7 @@ export function Root() {
         )}
 
         {/* Main Content */}
-        <main className="flex-1">
+        <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
       </div>
