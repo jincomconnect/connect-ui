@@ -505,72 +505,19 @@ export function Root() {
                       </AnimatePresence>
                     </div>
 
-                    {/* My Posts */}
-                    <div className="mb-6">
-                      <button
-                        onClick={() => setMyPostsOpen(o => !o)}
-                        className="flex items-center justify-between w-full mb-2.5 group"
-                      >
-                        <div className="flex items-center gap-1.5">
-                          <FileText size={14} className="text-neutral-500" />
-                          <h4 className="text-sm font-semibold text-neutral-900">My Posts</h4>
-                        </div>
-                        <motion.div
-                          animate={{ rotate: myPostsOpen ? 0 : -90 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <ChevronDown size={14} className="text-neutral-400 group-hover:text-neutral-600 transition-colors" />
-                        </motion.div>
-                      </button>
-                      <AnimatePresence initial={false}>
-                        {myPostsOpen && (
-                          <motion.div
-                            key="my-posts"
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2, ease: "easeInOut" }}
-                            style={{ overflow: "hidden" }}
-                          >
-                            <div className="space-y-1.5 pt-0.5">
-                              {mockUserPosts.map(post => (
-                                <div
-                                  key={post.id}
-                                  className="flex items-start justify-between gap-2 p-2.5 rounded-lg bg-neutral-50 border border-neutral-100 hover:border-neutral-200 transition-colors group/post"
-                                >
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-neutral-900 truncate leading-snug">{post.service}</p>
-                                    <div className="flex items-center gap-1.5 mt-1">
-                                      <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded-md ${
-                                        post.type === "offering" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
-                                      }`}>
-                                        {post.type === "offering" ? "Offering" : "Seeking"}
-                                      </span>
-                                      <span className="text-[10px] text-neutral-400 truncate">{post.community}</span>
-                                    </div>
-                                  </div>
-                                  <Link
-                                    to="/my-posts"
-                                    className="flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-neutral-200 hover:bg-neutral-100 text-neutral-600 hover:text-neutral-900 transition-colors flex-shrink-0 text-[10px] font-medium opacity-0 group-hover/post:opacity-100"
-                                    aria-label={`Edit ${post.service}`}
-                                  >
-                                    <Pencil size={10} />
-                                    Edit
-                                  </Link>
-                                </div>
-                              ))}
-                              <Link
-                                to="/my-posts"
-                                className="flex items-center justify-center gap-1.5 w-full py-1.5 text-xs text-neutral-500 hover:text-neutral-900 transition-colors rounded-lg hover:bg-neutral-50"
-                              >
-                                <FileText size={11} />
-                                View all posts
-                              </Link>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                    {/* My Posts subtle link */}
+                    <Link
+                      to="/my-posts"
+                      className="flex items-center justify-between mb-5 text-xs text-neutral-500 hover:text-neutral-900 transition-colors group"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <FileText size={12} />
+                        <span>My Posts</span>
+                      </div>
+                      <span className="px-1.5 py-0.5 bg-neutral-100 group-hover:bg-neutral-200 rounded-full text-[10px] font-medium transition-colors">
+                        {mockUserPosts.length}
+                      </span>
+                    </Link>
 
                     {/* Divider */}
                     <div className="h-px bg-neutral-200 mb-6" />
