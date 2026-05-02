@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Users, Check, Image, MapPin, ChevronDown, ChevronUp, Plus, Trash2, Wifi } from "lucide-react";
 
@@ -44,6 +44,8 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
   const [sharedContent, setSharedContent] = useState<CommunityContent>(emptyContent());
   const [communityContent, setCommunityContent] = useState<Record<string, CommunityContent>>({});
   const [activeCommunityTab, setActiveCommunityTab] = useState<string>("");
+  const [communityDropdownOpen, setCommunityDropdownOpen] = useState(false);
+  const communityDropdownRef = useRef<HTMLDivElement>(null);
   const [isInPerson, setIsInPerson] = useState(true);
   const [isOnline, setIsOnline] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -65,6 +67,17 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
       setMediaCount(0);
     }
   }, [isOpen, defaultCommunityId]);
+
+  // Close community dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (communityDropdownRef.current && !communityDropdownRef.current.contains(e.target as Node)) {
+        setCommunityDropdownOpen(false);
+      }
+    };
+    if (communityDropdownOpen) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [communityDropdownOpen]);
 
   // Sync active tab when communities change
   useEffect(() => {
@@ -239,35 +252,91 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
                     <section>
                       <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-1">Post to Communities</h3>
                       <p className="text-xs text-neutral-400 mb-3">Select one or more communities to post in</p>
-                      <div className="space-y-2">
-                        {allCommunities.map(community => {
-                          const selected = selectedCommunities.includes(community.id);
-                          return (
-                            <button
-                              key={community.id}
-                              onClick={() => toggleCommunity(community.id)}
-                              className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                                selected
-                                  ? "border-neutral-900 bg-white"
-                                  : "border-neutral-200 bg-white hover:border-neutral-300"
-                              }`}
+
+                      {/* Dropdown trigger */}
+                      <div className="relative" ref={communityDropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() => setCommunityDropdownOpen(v => !v)}
+                          className={`w-full flex items-center gap-2 px-3 py-3 bg-white border-2 rounded-xl transition-colors text-sm ${
+                            communityDropdownOpen ? "border-neutral-900" : "border-neutral-200 hover:border-neutral-300"
+                          }`}
+                        >
+                          <Users size={15} className="text-neutral-400 flex-shrink-0" />
+                          <span className="flex-1 text-left text-neutral-500">
+                            {selectedCommunities.length === 0
+                              ? "Choose communities…"
+                              : `${selectedCommunities.length} communit${selectedCommunities.length === 1 ? "y" : "ies"} selected`}
+                          </span>
+                          {communityDropdownOpen
+                            ? <ChevronUp size={15} className="text-neutral-400 flex-shrink-0" />
+                            : <ChevronDown size={15} className="text-neutral-400 flex-shrink-0" />}
+                        </button>
+
+                        {/* Dropdown panel */}
+                        <AnimatePresence>
+                          {communityDropdownOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -6 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute z-10 mt-1 w-full bg-white border border-neutral-200 rounded-xl shadow-lg overflow-hidden"
                             >
-                              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${community.color} flex items-center justify-center flex-shrink-0`}>
-                                <Users className="text-white" size={18} />
-                              </div>
-                              <div className="flex-1 text-left">
-                                <div className="text-sm font-semibold text-neutral-900">{community.name}</div>
-                                <div className="text-xs text-neutral-500">{community.category}</div>
-                              </div>
-                              <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                                selected ? "border-neutral-900 bg-neutral-900" : "border-neutral-300"
-                              }`}>
-                                {selected && <Check size={12} className="text-white" />}
-                              </div>
-                            </button>
-                          );
-                        })}
+                              {allCommunities.map(community => {
+                                const selected = selectedCommunities.includes(community.id);
+                                return (
+                                  <button
+                                    key={community.id}
+                                    type="button"
+                                    onClick={() => toggleCommunity(community.id)}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 transition-colors text-left ${
+                                      selected ? "bg-neutral-50" : "hover:bg-neutral-50"
+                                    }`}
+                                  >
+                                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${community.color} flex items-center justify-center flex-shrink-0`}>
+                                      <Users className="text-white" size={14} />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-sm font-semibold text-neutral-900">{community.name}</div>
+                                      <div className="text-xs text-neutral-400">{community.category}</div>
+                                    </div>
+                                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                                      selected ? "border-neutral-900 bg-neutral-900" : "border-neutral-300"
+                                    }`}>
+                                      {selected && <Check size={11} className="text-white" />}
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
+
+                      {/* Selected community chips */}
+                      {selectedCommunities.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {selectedCommunities.map(id => {
+                            const c = allCommunities.find(c => c.id === id);
+                            if (!c) return null;
+                            return (
+                              <span key={id} className="flex items-center gap-1.5 pl-2 pr-1 py-1 bg-white border border-neutral-200 rounded-full text-xs font-medium text-neutral-700">
+                                <div className={`w-3 h-3 rounded-full bg-gradient-to-br ${c.color}`} />
+                                {c.name}
+                                <button
+                                  type="button"
+                                  onClick={() => toggleCommunity(id)}
+                                  className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors"
+                                >
+                                  <X size={10} className="text-neutral-500" />
+                                </button>
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
+
                       {selectedCommunities.length === 0 && (
                         <p className="text-xs text-red-500 mt-2">Please select at least one community</p>
                       )}
