@@ -294,7 +294,7 @@ export function Root() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -320, opacity: 0 }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="hidden lg:block w-80 bg-white border-r border-neutral-200 min-h-[calc(100vh-4rem)] sticky top-16 relative"
+              className="hidden md:block w-80 bg-white border-r border-neutral-200 min-h-[calc(100vh-4rem)] sticky top-16 relative"
             >
               <div className="p-6">
                 {/* Conditional: Show Community Info or User Profile */}
@@ -441,7 +441,7 @@ export function Root() {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={() => setIsSidebarCollapsed(false)}
-            className="hidden lg:flex fixed left-0 top-20 z-50 w-8 h-12 bg-neutral-50 border border-neutral-200 border-l-0 rounded-r-lg items-center justify-center hover:bg-neutral-100 transition-colors group"
+            className="hidden md:flex fixed left-0 top-20 z-50 w-8 h-12 bg-neutral-50 border border-neutral-200 border-l-0 rounded-r-lg items-center justify-center hover:bg-neutral-100 transition-colors group"
             aria-label="Expand sidebar"
           >
             <ChevronRight size={16} className="text-neutral-600 group-hover:text-neutral-900 transition-colors" />
