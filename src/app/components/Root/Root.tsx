@@ -149,11 +149,7 @@ export function Root() {
               <Link
                 to="/"
                 aria-label="Go to home"
-                className={`flex items-center justify-center w-9 h-9 rounded-lg transition-colors flex-shrink-0 ${
-                  location.pathname === "/"
-                    ? "bg-neutral-900 text-white"
-                    : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
-                }`}
+                className="flex items-center justify-center w-9 h-9 rounded-lg transition-colors flex-shrink-0 text-neutral-900 hover:bg-neutral-100"
               >
                 <Home size={18} />
               </Link>
