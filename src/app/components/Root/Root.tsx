@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet, useLocation, Link, useNavigate } from "react-router";
-import { Home, Users, Shield, LogOut, Mail, MapPin, Calendar, ChevronRight, Search, ChevronLeft, Menu, Settings, HelpCircle, User, ChevronDown, Megaphone, Bell, TrendingUp, Telescope } from "lucide-react";
+import { Home, Users, Shield, LogOut, Mail, MapPin, Calendar, ChevronRight, Search, ChevronLeft, Menu, Settings, HelpCircle, User, ChevronDown, Megaphone, Bell, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useSidebar } from "../../context/SidebarContext";
@@ -100,6 +100,8 @@ export function Root() {
   const navigate = useNavigate();
   const isAuthPage = location.pathname === "/login" || location.pathname === "/signup";
   const [searchQuery, setSearchQuery] = useState("");
+  const [offeringOpen, setOfferingOpen] = useState(true);
+  const [seekingOpen, setSeekingOpen] = useState(true);
   const { isSidebarCollapsed, setIsSidebarCollapsed } = useSidebar();
 
   // Check if we're on a community detail page
@@ -392,38 +394,80 @@ export function Root() {
                   <>
                     {/* What I Offer */}
                     <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2.5">
+                      <button
+                        onClick={() => setOfferingOpen(o => !o)}
+                        className="flex items-center justify-between w-full mb-2.5 group"
+                      >
                         <div className="flex items-center gap-1.5">
                           <TrendingUp size={14} className="text-green-600" />
                           <h4 className="text-sm font-semibold text-neutral-900">Services I Provide</h4>
                         </div>
-                        <button className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors">Edit</button>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {mockUserOffering.map(tag => (
-                          <span key={tag.label} className={`px-2.5 py-1 rounded-full text-xs font-medium ${tag.color}`}>
-                            {tag.label}
-                          </span>
-                        ))}
-                      </div>
+                        <motion.div
+                          animate={{ rotate: offeringOpen ? 0 : -90 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <ChevronDown size={14} className="text-neutral-400 group-hover:text-neutral-600 transition-colors" />
+                        </motion.div>
+                      </button>
+                      <AnimatePresence initial={false}>
+                        {offeringOpen && (
+                          <motion.div
+                            key="offering-tags"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: "easeInOut" }}
+                            style={{ overflow: "hidden" }}
+                          >
+                            <div className="flex flex-wrap gap-1.5 pt-0.5">
+                              {mockUserOffering.map(tag => (
+                                <span key={tag.label} className={`px-2.5 py-1 rounded-full text-xs font-medium ${tag.color}`}>
+                                  {tag.label}
+                                </span>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     {/* What I Seek */}
                     <div className="mb-6">
-                      <div className="flex items-center justify-between mb-2.5">
+                      <button
+                        onClick={() => setSeekingOpen(o => !o)}
+                        className="flex items-center justify-between w-full mb-2.5 group"
+                      >
                         <div className="flex items-center gap-1.5">
                           <Search size={14} className="text-blue-600" />
                           <h4 className="text-sm font-semibold text-neutral-900">Services I Seek</h4>
                         </div>
-                        <button className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors">Edit</button>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {mockUserSeeking.map(tag => (
-                          <span key={tag.label} className={`px-2.5 py-1 rounded-full text-xs font-medium ${tag.color}`}>
-                            {tag.label}
-                          </span>
-                        ))}
-                      </div>
+                        <motion.div
+                          animate={{ rotate: seekingOpen ? 0 : -90 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <ChevronDown size={14} className="text-neutral-400 group-hover:text-neutral-600 transition-colors" />
+                        </motion.div>
+                      </button>
+                      <AnimatePresence initial={false}>
+                        {seekingOpen && (
+                          <motion.div
+                            key="seeking-tags"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: "easeInOut" }}
+                            style={{ overflow: "hidden" }}
+                          >
+                            <div className="flex flex-wrap gap-1.5 pt-0.5">
+                              {mockUserSeeking.map(tag => (
+                                <span key={tag.label} className={`px-2.5 py-1 rounded-full text-xs font-medium ${tag.color}`}>
+                                  {tag.label}
+                                </span>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     {/* Divider */}
