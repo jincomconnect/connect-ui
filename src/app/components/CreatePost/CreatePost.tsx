@@ -20,6 +20,8 @@ interface CommunityContent {
   serviceTitle: string;
   category: string;
   description: string;
+  price: string;
+  priceType: string;
 }
 
 interface CreatePostModalProps {
@@ -32,7 +34,12 @@ const emptyContent = (): CommunityContent => ({
   serviceTitle: "",
   category: "",
   description: "",
+  price: "",
+  priceType: "",
 });
+
+const offeringRateTypes = ["/ hour", "/ day", "/ project", "Fixed price", "Free", "Negotiable"];
+const seekingRateTypes = ["/ hour", "/ day", "/ project", "Total budget", "Open to discuss"];
 
 export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreatePostModalProps) {
   const [postType, setPostType] = useState<"offering" | "seeking">("offering");
@@ -515,6 +522,7 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
                                   )}
                                   <ContentFields
                                     content={content}
+                                    postType={postType}
                                     onUpdate={(field, value) => updateCommunityContent(activeCommunityTab, field, value)}
                                   />
                                 </div>
@@ -525,6 +533,7 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
                           /* Single shared form */
                           <ContentFields
                             content={sharedContent}
+                            postType={postType}
                             onUpdate={(field, value) => setSharedContent(prev => ({ ...prev, [field]: value }))}
                           />
                         )}
@@ -607,20 +616,26 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
 
 interface ContentFieldsProps {
   content: CommunityContent;
+  postType: "offering" | "seeking";
   onUpdate: (field: keyof CommunityContent, value: string) => void;
 }
 
-function ContentFields({ content, onUpdate }: ContentFieldsProps) {
+function ContentFields({ content, postType, onUpdate }: ContentFieldsProps) {
   const [categoryOpen, setCategoryOpen] = useState(false);
+  const [rateTypeOpen, setRateTypeOpen] = useState(false);
+  const rateTypes = postType === "offering" ? offeringRateTypes : seekingRateTypes;
+  const isOffering = postType === "offering";
 
   return (
     <div className="space-y-4">
       {/* Service Title */}
       <div>
-        <label className="block text-xs font-medium text-neutral-600 mb-1.5">Service Title</label>
+        <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+          {isOffering ? "Service Title" : "What are you looking for?"}
+        </label>
         <input
           type="text"
-          placeholder="e.g. Custom Logo Design, Rideshare to Airport…"
+          placeholder={isOffering ? "e.g. Custom Logo Design, Rideshare to Airport…" : "e.g. Logo designer, Moving help…"}
           value={content.serviceTitle}
           onChange={e => onUpdate("serviceTitle", e.target.value)}
           className="w-full px-4 py-3 bg-white border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-neutral-900 transition-colors text-sm"
@@ -668,6 +683,75 @@ function ContentFields({ content, onUpdate }: ContentFieldsProps) {
             )}
           </AnimatePresence>
         </div>
+      </div>
+
+      {/* Pricing / Budget */}
+      <div>
+        <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+          {isOffering ? "Pricing" : "Budget"}
+          <span className="ml-1 font-normal text-neutral-400">(optional)</span>
+        </label>
+        <div className="flex gap-2">
+          {/* Amount input */}
+          <div className="relative flex-1">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-medium select-none">$</span>
+            <input
+              type="number"
+              min="0"
+              placeholder={isOffering ? "0" : "Max"}
+              value={content.price}
+              onChange={e => onUpdate("price", e.target.value)}
+              className="w-full pl-7 pr-3 py-3 bg-white border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-neutral-900 transition-colors text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
+
+          {/* Rate type dropdown */}
+          <div className="relative w-40 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => setRateTypeOpen(o => !o)}
+              className={`w-full flex items-center justify-between px-3 py-3 bg-white border-2 rounded-xl text-sm transition-colors ${
+                content.priceType ? "border-neutral-900 text-neutral-900" : "border-neutral-200 text-neutral-400"
+              }`}
+            >
+              <span className="truncate">{content.priceType || "Rate type"}</span>
+              {rateTypeOpen ? <ChevronUp size={14} className="text-neutral-500 flex-shrink-0 ml-1" /> : <ChevronDown size={14} className="text-neutral-500 flex-shrink-0 ml-1" />}
+            </button>
+            <AnimatePresence>
+              {rateTypeOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="absolute z-10 top-full right-0 mt-1 w-44 bg-white border border-neutral-200 rounded-xl shadow-lg overflow-hidden"
+                >
+                  <div className="py-1">
+                    {rateTypes.map(rt => (
+                      <button
+                        key={rt}
+                        type="button"
+                        onClick={() => { onUpdate("priceType", rt); setRateTypeOpen(false); }}
+                        className={`w-full text-left px-4 py-2.5 text-sm hover:bg-neutral-50 transition-colors flex items-center justify-between ${
+                          content.priceType === rt ? "text-neutral-900 font-medium" : "text-neutral-700"
+                        }`}
+                      >
+                        {rt}
+                        {content.priceType === rt && <Check size={13} className="text-neutral-900" />}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Hint — lays groundwork for future budget meter */}
+        <p className="text-xs text-neutral-400 mt-1.5">
+          {isOffering
+            ? "Community pricing data helps seekers calibrate their budget"
+            : "Community pricing data will show you a live budget range soon"}
+        </p>
       </div>
 
       {/* Description */}
