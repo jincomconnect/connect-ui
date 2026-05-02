@@ -41,6 +41,24 @@ const emptyContent = (): CommunityContent => ({
 const offeringRateTypes = ["/ hour", "/ day", "/ project", "Fixed price", "Free", "Negotiable"];
 const seekingRateTypes = ["/ hour", "/ day", "/ project", "Total budget", "Open to discuss"];
 
+const communityPricing: Record<string, { low: number; median: number; high: number }> = {
+  "Design":           { low: 35,  median: 75,  high: 200 },
+  "Technology":       { low: 50,  median: 110, high: 250 },
+  "Marketing":        { low: 30,  median: 65,  high: 150 },
+  "Photography":      { low: 50,  median: 100, high: 220 },
+  "Health & Wellness":{ low: 40,  median: 80,  high: 175 },
+  "Education":        { low: 25,  median: 55,  high: 130 },
+  "Finance":          { low: 75,  median: 175, high: 400 },
+  "Transportation":   { low: 20,  median: 45,  high: 100 },
+  "Food & Beverage":  { low: 25,  median: 55,  high: 120 },
+  "Consulting":       { low: 80,  median: 185, high: 400 },
+  "Creative":         { low: 30,  median: 70,  high: 160 },
+  "Legal":            { low: 100, median: 275, high: 600 },
+  "Real Estate":      { low: 50,  median: 160, high: 450 },
+  "Other":            { low: 20,  median: 75,  high: 200 },
+};
+const defaultPricing = { low: 20, median: 75, high: 250 };
+
 export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreatePostModalProps) {
   const [postType, setPostType] = useState<"offering" | "seeking">("offering");
   const [location, setLocation] = useState("");
@@ -691,67 +709,204 @@ function ContentFields({ content, postType, onUpdate }: ContentFieldsProps) {
           {isOffering ? "Pricing" : "Budget"}
           <span className="ml-1 font-normal text-neutral-400">(optional)</span>
         </label>
-        <div className="flex gap-2">
-          {/* Amount input */}
-          <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-medium select-none">$</span>
-            <input
-              type="number"
-              min="0"
-              placeholder={isOffering ? "0" : "Max"}
-              value={content.price}
-              onChange={e => onUpdate("price", e.target.value)}
-              className="w-full pl-7 pr-3 py-3 bg-white border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-neutral-900 transition-colors text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            />
-          </div>
 
-          {/* Rate type dropdown */}
-          <div className="relative w-40 flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => setRateTypeOpen(o => !o)}
-              className={`w-full flex items-center justify-between px-3 py-3 bg-white border-2 rounded-xl text-sm transition-colors ${
-                content.priceType ? "border-neutral-900 text-neutral-900" : "border-neutral-200 text-neutral-400"
-              }`}
-            >
-              <span className="truncate">{content.priceType || "Rate type"}</span>
-              {rateTypeOpen ? <ChevronUp size={14} className="text-neutral-500 flex-shrink-0 ml-1" /> : <ChevronDown size={14} className="text-neutral-500 flex-shrink-0 ml-1" />}
-            </button>
-            <AnimatePresence>
-              {rateTypeOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  className="absolute z-10 top-full right-0 mt-1 w-44 bg-white border border-neutral-200 rounded-xl shadow-lg overflow-hidden"
+        {isOffering ? (
+          /* Offering: plain $ input + rate type side by side */
+          <>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-medium select-none">$</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={content.price}
+                  onChange={e => onUpdate("price", e.target.value)}
+                  className="w-full pl-7 pr-3 py-3 bg-white border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-neutral-900 transition-colors text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+              </div>
+              <div className="relative w-40 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setRateTypeOpen(o => !o)}
+                  className={`w-full flex items-center justify-between px-3 py-3 bg-white border-2 rounded-xl text-sm transition-colors ${
+                    content.priceType ? "border-neutral-900 text-neutral-900" : "border-neutral-200 text-neutral-400"
+                  }`}
                 >
-                  <div className="py-1">
-                    {rateTypes.map(rt => (
-                      <button
-                        key={rt}
-                        type="button"
-                        onClick={() => { onUpdate("priceType", rt); setRateTypeOpen(false); }}
-                        className={`w-full text-left px-4 py-2.5 text-sm hover:bg-neutral-50 transition-colors flex items-center justify-between ${
-                          content.priceType === rt ? "text-neutral-900 font-medium" : "text-neutral-700"
-                        }`}
-                      >
-                        {rt}
-                        {content.priceType === rt && <Check size={13} className="text-neutral-900" />}
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+                  <span className="truncate">{content.priceType || "Rate type"}</span>
+                  {rateTypeOpen ? <ChevronUp size={14} className="text-neutral-500 flex-shrink-0 ml-1" /> : <ChevronDown size={14} className="text-neutral-500 flex-shrink-0 ml-1" />}
+                </button>
+                <AnimatePresence>
+                  {rateTypeOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      className="absolute z-10 top-full right-0 mt-1 w-44 bg-white border border-neutral-200 rounded-xl shadow-lg overflow-hidden"
+                    >
+                      <div className="py-1">
+                        {rateTypes.map(rt => (
+                          <button
+                            key={rt}
+                            type="button"
+                            onClick={() => { onUpdate("priceType", rt); setRateTypeOpen(false); }}
+                            className={`w-full text-left px-4 py-2.5 text-sm hover:bg-neutral-50 transition-colors flex items-center justify-between ${
+                              content.priceType === rt ? "text-neutral-900 font-medium" : "text-neutral-700"
+                            }`}
+                          >
+                            {rt}
+                            {content.priceType === rt && <Check size={13} className="text-neutral-900" />}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+            <p className="text-xs text-neutral-400 mt-1.5">Community pricing data helps seekers calibrate their budget</p>
+          </>
+        ) : (
+          /* Seeking: gradient budget meter + rate type below */
+          (() => {
+            const pricing = communityPricing[content.category] || defaultPricing;
+            const sliderMin = pricing.low;
+            const sliderMax = pricing.high;
+            const currentVal = content.price !== "" ? Math.min(Math.max(Number(content.price), sliderMin), sliderMax) : pricing.median;
+            const pct = ((currentVal - sliderMin) / (sliderMax - sliderMin)) * 100;
+            const medianPct = ((pricing.median - sliderMin) / (sliderMax - sliderMin)) * 100;
+            const thumbOffset = `calc(${pct}% - ${10 + (pct / 100) * 0}px)`;
 
-        {/* Hint — lays groundwork for future budget meter */}
-        <p className="text-xs text-neutral-400 mt-1.5">
-          {isOffering
-            ? "Community pricing data helps seekers calibrate their budget"
-            : "Community pricing data will show you a live budget range soon"}
-        </p>
+            return (
+              <div className="space-y-3">
+                {/* Meter container */}
+                <div className="bg-white border-2 border-neutral-200 rounded-xl p-4">
+
+                  {/* Value bubble + slider track wrapper */}
+                  <div className="relative mb-5">
+                    {/* Floating value bubble */}
+                    <div
+                      className="absolute -top-1 flex flex-col items-center pointer-events-none"
+                      style={{ left: thumbOffset, transform: "translateX(-50%)" }}
+                    >
+                      <div className="bg-neutral-900 text-white text-xs font-bold px-2 py-1 rounded-lg whitespace-nowrap shadow-md">
+                        ${currentVal.toLocaleString()}
+                      </div>
+                      <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-neutral-900 mt-0" />
+                    </div>
+
+                    {/* Spacer for bubble height */}
+                    <div className="h-8" />
+
+                    {/* Gradient track + slider */}
+                    <div className="relative h-3">
+                      {/* Full gradient background (dimmed) */}
+                      <div
+                        className="absolute inset-0 rounded-full opacity-25"
+                        style={{ background: "linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444)" }}
+                      />
+                      {/* Filled portion */}
+                      <div
+                        className="absolute left-0 top-0 bottom-0 rounded-full"
+                        style={{
+                          width: `${pct}%`,
+                          background: "linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444)",
+                        }}
+                      />
+                      {/* Range input */}
+                      <input
+                        type="range"
+                        min={sliderMin}
+                        max={sliderMax}
+                        step={5}
+                        value={currentVal}
+                        onChange={e => onUpdate("price", e.target.value)}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      {/* Thumb indicator */}
+                      <div
+                        className="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white border-2 border-neutral-800 shadow-md pointer-events-none"
+                        style={{ left: thumbOffset, transform: "translate(-50%, -50%)" }}
+                      />
+                    </div>
+
+                    {/* Median marker */}
+                    <div
+                      className="absolute top-8 flex flex-col items-center pointer-events-none"
+                      style={{ left: `${medianPct}%`, transform: "translateX(-50%)" }}
+                    >
+                      <div className="w-px h-2 bg-neutral-400" />
+                    </div>
+                  </div>
+
+                  {/* Range labels */}
+                  <div className="flex justify-between items-end mt-1">
+                    <div className="text-center">
+                      <div className="text-xs font-semibold text-emerald-600">${pricing.low}</div>
+                      <div className="text-[10px] text-neutral-400">Low</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xs font-semibold text-amber-500">${pricing.median}</div>
+                      <div className="text-[10px] text-neutral-400">Median</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xs font-semibold text-red-500">${pricing.high}</div>
+                      <div className="text-[10px] text-neutral-400">High</div>
+                    </div>
+                  </div>
+
+                  {content.category ? (
+                    <p className="text-[10px] text-neutral-400 mt-3 text-center">
+                      Based on community rates in <span className="font-medium text-neutral-600">{content.category}</span>
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-neutral-400 mt-3 text-center">Select a category above to see community rates</p>
+                  )}
+                </div>
+
+                {/* Rate type row */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setRateTypeOpen(o => !o)}
+                    className={`w-full flex items-center justify-between px-3 py-3 bg-white border-2 rounded-xl text-sm transition-colors ${
+                      content.priceType ? "border-neutral-900 text-neutral-900" : "border-neutral-200 text-neutral-400"
+                    }`}
+                  >
+                    <span className="truncate">{content.priceType || "Rate type (e.g. per hour, total budget)"}</span>
+                    {rateTypeOpen ? <ChevronUp size={14} className="text-neutral-500 flex-shrink-0 ml-1" /> : <ChevronDown size={14} className="text-neutral-500 flex-shrink-0 ml-1" />}
+                  </button>
+                  <AnimatePresence>
+                    {rateTypeOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        className="absolute z-10 top-full left-0 mt-1 w-full bg-white border border-neutral-200 rounded-xl shadow-lg overflow-hidden"
+                      >
+                        <div className="py-1">
+                          {rateTypes.map(rt => (
+                            <button
+                              key={rt}
+                              type="button"
+                              onClick={() => { onUpdate("priceType", rt); setRateTypeOpen(false); }}
+                              className={`w-full text-left px-4 py-2.5 text-sm hover:bg-neutral-50 transition-colors flex items-center justify-between ${
+                                content.priceType === rt ? "text-neutral-900 font-medium" : "text-neutral-700"
+                              }`}
+                            >
+                              {rt}
+                              {content.priceType === rt && <Check size={13} className="text-neutral-900" />}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            );
+          })()
+        )}
       </div>
 
       {/* Description */}
