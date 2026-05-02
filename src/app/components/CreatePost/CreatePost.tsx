@@ -44,6 +44,7 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
   const [sharedContent, setSharedContent] = useState<CommunityContent>(emptyContent());
   const [communityContent, setCommunityContent] = useState<Record<string, CommunityContent>>({});
   const [activeCommunityTab, setActiveCommunityTab] = useState<string>("");
+  const [isInPerson, setIsInPerson] = useState(true);
   const [isOnline, setIsOnline] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [mediaCount, setMediaCount] = useState(0);
@@ -53,6 +54,7 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
     if (isOpen) {
       setPostType("offering");
       setLocation("");
+      setIsInPerson(true);
       setIsOnline(false);
       setSelectedCommunities(defaultCommunityId ? [defaultCommunityId] : []);
       setCustomizePerCommunity(false);
@@ -111,7 +113,8 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
 
   const isFormValid = () => {
     if (selectedCommunities.length === 0) return false;
-    if (!isOnline && !location.trim()) return false;
+    if (!isInPerson && !isOnline) return false;
+    if (isInPerson && !location.trim()) return false;
     if (customizePerCommunity) {
       return selectedCommunities.every(id => {
         const c = communityContent[id] || emptyContent();
@@ -275,21 +278,22 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
                       <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-1">Location</h3>
                       <p className="text-xs text-neutral-400 mb-3">Required for in-person services — used in search filtering</p>
 
-                      {/* Online / In-person toggle */}
+                      {/* Independent toggles — both can be active */}
                       <div className="grid grid-cols-2 gap-2 mb-3">
                         <button
-                          onClick={() => { setIsOnline(false); }}
+                          onClick={() => setIsInPerson(v => !v)}
                           className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
-                            !isOnline
+                            isInPerson
                               ? "border-neutral-900 bg-neutral-900 text-white"
                               : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300"
                           }`}
                         >
                           <MapPin size={15} />
                           In-Person
+                          {isInPerson && <Check size={13} />}
                         </button>
                         <button
-                          onClick={() => { setIsOnline(true); setLocation(""); }}
+                          onClick={() => { setIsOnline(v => !v); if (isOnline) setLocation(""); }}
                           className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
                             isOnline
                               ? "border-blue-600 bg-blue-600 text-white"
@@ -298,12 +302,30 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
                         >
                           <Wifi size={15} />
                           Online / Remote
+                          {isOnline && <Check size={13} />}
                         </button>
                       </div>
 
-                      {/* Location input — shown only for in-person */}
+                      {/* Mode summary badge */}
+                      {isInPerson && isOnline && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="flex items-center gap-2 px-3 py-2 mb-3 bg-purple-50 border border-purple-200 rounded-xl text-xs text-purple-700 font-medium"
+                        >
+                          <MapPin size={13} />
+                          <Wifi size={13} />
+                          <span>Available both in-person and online</span>
+                        </motion.div>
+                      )}
+
+                      {!isInPerson && !isOnline && (
+                        <p className="text-xs text-red-500 mb-3">Please select at least one option</p>
+                      )}
+
+                      {/* Location input — shown only when in-person is selected */}
                       <AnimatePresence>
-                        {!isOnline && (
+                        {isInPerson && (
                           <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
@@ -335,15 +357,15 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
                         )}
                       </AnimatePresence>
 
-                      {/* Online badge */}
-                      {isOnline && (
+                      {/* Online-only note */}
+                      {isOnline && !isInPerson && (
                         <motion.div
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           className="flex items-center gap-2 px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-700"
                         >
                           <Wifi size={14} />
-                          <span>This service is available online — no location needed</span>
+                          <span>Online only — no location needed</span>
                         </motion.div>
                       )}
                     </section>
