@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Heart, MessageCircle, Share2, MapPin, TrendingUp, ChevronLeft, ChevronRight, Users, Phone, MessageSquare, Send } from "lucide-react";
+import { Heart, MessageCircle, Share2, MapPin, TrendingUp, ChevronLeft, ChevronRight, Users, Phone, MessageSquare, Send, Plus } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import { CreatePostModal } from "../CreatePost/CreatePost";
 import "./Home.css";
 
 interface Post {
@@ -119,6 +120,7 @@ export function Home() {
   const [posts] = useState<Post[]>(mockPosts);
   const [currentMediaIndex, setCurrentMediaIndex] = useState<Record<string, number>>({});
   const [showComments, setShowComments] = useState<Record<string, boolean>>({});
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
 
   const toggleComments = (postId: string) => {
     setShowComments(prev => ({ ...prev, [postId]: !prev[postId] }));
@@ -383,6 +385,36 @@ export function Home() {
           ))}
         </div>
       </div>
+
+      {/* Floating Create Post Button */}
+      <Tooltip.Root>
+        <Tooltip.Trigger asChild>
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            onClick={() => setIsCreatePostOpen(true)}
+            className="fixed bottom-8 right-8 w-14 h-14 bg-neutral-900 text-white rounded-full shadow-lg hover:bg-neutral-800 hover:shadow-xl transition-all flex items-center justify-center z-50"
+            aria-label="Create a post"
+          >
+            <Plus size={24} />
+          </motion.button>
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Content
+            className="bg-neutral-900 text-white text-sm px-3 py-2 rounded-lg shadow-lg"
+            sideOffset={5}
+          >
+            Create a post
+            <Tooltip.Arrow className="fill-neutral-900" />
+          </Tooltip.Content>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+
+      <CreatePostModal
+        isOpen={isCreatePostOpen}
+        onClose={() => setIsCreatePostOpen(false)}
+      />
     </div>
   );
 }

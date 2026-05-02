@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Heart, MessageCircle, Share2, MapPin, TrendingUp, Users, ArrowLeft, Settings as SettingsIcon, Plus, Megaphone, Clock, Calendar, AlertCircle, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X, Phone, MessageSquare, Send } from "lucide-react";
 import { useSidebar } from "../../context/SidebarContext";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import { CreatePostModal } from "../CreatePost/CreatePost";
 import "./CommunityDetail.css";
 
 interface Post {
@@ -461,6 +462,7 @@ export function CommunityDetail() {
   const allReminders = id ? mockReminders[id] || [] : [];
   const [ignoredReminders, setIgnoredReminders] = useState<string[]>([]);
   const [currentAnnouncement, setCurrentAnnouncement] = useState(0);
+  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
 
   // Filter out ignored reminders
   const reminders = allReminders.filter(r => !ignoredReminders.includes(r.id));
@@ -955,6 +957,7 @@ export function CommunityDetail() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
+              onClick={() => setIsCreatePostOpen(true)}
               className="fixed bottom-8 right-8 w-14 h-14 bg-neutral-900 text-white rounded-full shadow-lg hover:bg-neutral-800 hover:shadow-xl transition-all flex items-center justify-center group z-50"
               aria-label="Create a post"
             >
@@ -972,6 +975,12 @@ export function CommunityDetail() {
           </Tooltip.Portal>
         </Tooltip.Root>
       </Tooltip.Provider>
+
+      <CreatePostModal
+        isOpen={isCreatePostOpen}
+        onClose={() => setIsCreatePostOpen(false)}
+        defaultCommunityId={id}
+      />
     </div>
   );
 }
