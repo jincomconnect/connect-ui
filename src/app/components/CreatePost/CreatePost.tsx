@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Users, Check, Image, Video, MapPin, ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { X, Users, Check, Image, MapPin, ChevronDown, ChevronUp, Plus, Trash2, Wifi } from "lucide-react";
 
 const allCommunities = [
   { id: "1", name: "Local Designers", color: "from-purple-500 to-pink-500", category: "Design" },
@@ -44,6 +44,7 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
   const [sharedContent, setSharedContent] = useState<CommunityContent>(emptyContent());
   const [communityContent, setCommunityContent] = useState<Record<string, CommunityContent>>({});
   const [activeCommunityTab, setActiveCommunityTab] = useState<string>("");
+  const [isOnline, setIsOnline] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [mediaCount, setMediaCount] = useState(0);
 
@@ -52,6 +53,7 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
     if (isOpen) {
       setPostType("offering");
       setLocation("");
+      setIsOnline(false);
       setSelectedCommunities(defaultCommunityId ? [defaultCommunityId] : []);
       setCustomizePerCommunity(false);
       setSharedContent(emptyContent());
@@ -109,7 +111,7 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
 
   const isFormValid = () => {
     if (selectedCommunities.length === 0) return false;
-    if (!location.trim()) return false;
+    if (!isOnline && !location.trim()) return false;
     if (customizePerCommunity) {
       return selectedCommunities.every(id => {
         const c = communityContent[id] || emptyContent();
@@ -270,17 +272,80 @@ export function CreatePostModal({ isOpen, onClose, defaultCommunityId }: CreateP
 
                     {/* Section 3: Location */}
                     <section>
-                      <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-3">Location</h3>
-                      <div className="relative">
-                        <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-                        <input
-                          type="text"
-                          placeholder="City, State (e.g. San Francisco, CA)"
-                          value={location}
-                          onChange={e => setLocation(e.target.value)}
-                          className="w-full pl-9 pr-4 py-3 bg-white border-2 border-neutral-200 rounded-xl focus:outline-none focus:border-neutral-900 transition-colors text-sm"
-                        />
+                      <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-1">Location</h3>
+                      <p className="text-xs text-neutral-400 mb-3">Required for in-person services — used in search filtering</p>
+
+                      {/* Online / In-person toggle */}
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <button
+                          onClick={() => { setIsOnline(false); }}
+                          className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                            !isOnline
+                              ? "border-neutral-900 bg-neutral-900 text-white"
+                              : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300"
+                          }`}
+                        >
+                          <MapPin size={15} />
+                          In-Person
+                        </button>
+                        <button
+                          onClick={() => { setIsOnline(true); setLocation(""); }}
+                          className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                            isOnline
+                              ? "border-blue-600 bg-blue-600 text-white"
+                              : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300"
+                          }`}
+                        >
+                          <Wifi size={15} />
+                          Online / Remote
+                        </button>
                       </div>
+
+                      {/* Location input — shown only for in-person */}
+                      <AnimatePresence>
+                        {!isOnline && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="relative">
+                              <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                              <input
+                                type="text"
+                                placeholder="City, State (e.g. San Francisco, CA)"
+                                value={location}
+                                onChange={e => setLocation(e.target.value)}
+                                className={`w-full pl-9 pr-4 py-3 bg-white border-2 rounded-xl focus:outline-none transition-colors text-sm ${
+                                  location.trim()
+                                    ? "border-neutral-900 focus:border-neutral-900"
+                                    : "border-neutral-200 focus:border-neutral-900"
+                                }`}
+                              />
+                            </div>
+                            {!location.trim() && (
+                              <p className="text-xs text-amber-600 mt-1.5 flex items-center gap-1">
+                                <span className="w-1 h-1 rounded-full bg-amber-500 inline-block" />
+                                Required for in-person services
+                              </p>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Online badge */}
+                      {isOnline && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="flex items-center gap-2 px-3 py-2.5 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-700"
+                        >
+                          <Wifi size={14} />
+                          <span>This service is available online — no location needed</span>
+                        </motion.div>
+                      )}
                     </section>
 
                     {/* Section 4: Service Details */}
