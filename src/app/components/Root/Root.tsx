@@ -530,7 +530,7 @@ export function Root() {
                     <h4 className="font-bold text-neutral-900">My Communities</h4>
                     <Link
                       to="/communities"
-                      className="text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+                      className="text-sm text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 px-2 py-1 rounded-lg transition-colors"
                     >
                       View all
                     </Link>

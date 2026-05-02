@@ -332,24 +332,24 @@ export function Home() {
               )}
 
               {/* Engagement Actions (Bottom) */}
-              <div className="px-6 py-4 border-t border-neutral-100 flex items-center gap-6">
-                <button className="flex items-center gap-2 text-neutral-600 hover:text-red-600 transition-colors">
-                  <Heart size={20} />
-                  <span className="font-medium">{post.likes}</span>
+              <div className="px-6 py-4 border-t border-neutral-100 flex items-center gap-2">
+                <button className="flex items-center gap-2 px-3 py-2 rounded-lg text-neutral-600 hover:text-red-600 hover:bg-red-50 transition-colors">
+                  <Heart size={18} />
+                  <span className="font-medium text-sm">{post.likes}</span>
                 </button>
                 <button 
                   onClick={() => toggleComments(post.id)}
-                  className={`flex items-center gap-2 transition-colors ${showComments[post.id] ? 'text-blue-600' : 'text-neutral-600 hover:text-blue-600'}`}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${showComments[post.id] ? 'text-blue-600 bg-blue-50' : 'text-neutral-600 hover:text-blue-600 hover:bg-blue-50'}`}
                 >
-                  <MessageCircle size={20} />
-                  <span className="font-medium">{post.comments}</span>
+                  <MessageCircle size={18} />
+                  <span className="font-medium text-sm">{post.comments}</span>
                 </button>
                 
-                <div className="flex items-center gap-4 ml-auto">
+                <div className="flex items-center gap-1 ml-auto">
                   <Tooltip.Root>
                     <Tooltip.Trigger asChild>
-                      <button className="flex items-center gap-2 text-neutral-600 hover:text-emerald-600 transition-colors" aria-label={`Call ${post.author}`}>
-                        <Phone size={20} />
+                      <button className="flex items-center gap-2 p-2 rounded-lg text-neutral-600 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" aria-label={`Call ${post.author}`}>
+                        <Phone size={18} />
                       </button>
                     </Tooltip.Trigger>
                     <Tooltip.Portal>
@@ -365,8 +365,8 @@ export function Home() {
 
                   <Tooltip.Root>
                     <Tooltip.Trigger asChild>
-                      <button className="flex items-center gap-2 text-neutral-600 hover:text-indigo-600 transition-colors" aria-label={`Chat with ${post.author}`}>
-                        <MessageSquare size={20} />
+                      <button className="flex items-center gap-2 p-2 rounded-lg text-neutral-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" aria-label={`Chat with ${post.author}`}>
+                        <MessageSquare size={18} />
                       </button>
                     </Tooltip.Trigger>
                     <Tooltip.Portal>
@@ -380,9 +380,9 @@ export function Home() {
                     </Tooltip.Portal>
                   </Tooltip.Root>
 
-                  <button className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition-colors">
-                    <Share2 size={20} />
-                    <span className="font-medium hidden sm:inline">Share</span>
+                  <button className="flex items-center gap-2 px-3 py-2 rounded-lg text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-colors">
+                    <Share2 size={18} />
+                    <span className="font-medium text-sm hidden sm:inline">Share</span>
                   </button>
                 </div>
               </div>
