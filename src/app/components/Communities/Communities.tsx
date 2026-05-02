@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { motion } from "motion/react";
 import { Users, Star, TrendingUp, Clock } from "lucide-react";
 import "./Communities.css";
