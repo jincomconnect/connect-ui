@@ -803,14 +803,14 @@ function ContentFields({ content, postType, onUpdate }: ContentFieldsProps) {
                       {/* Full gradient background (dimmed) */}
                       <div
                         className="absolute inset-0 rounded-full opacity-25"
-                        style={{ background: "linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444)" }}
+                        style={{ background: "linear-gradient(to right, #eab308, #22c55e, #f97316)" }}
                       />
                       {/* Filled portion */}
                       <div
                         className="absolute left-0 top-0 bottom-0 rounded-full"
                         style={{
                           width: `${pct}%`,
-                          background: "linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444)",
+                          background: "linear-gradient(to right, #eab308, #22c55e, #f97316)",
                         }}
                       />
                       {/* Range input */}
