@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "motion/react";
 import {
   Users, Globe, Lock, UserCheck, ChevronRight, ChevronLeft,
   Check, Tag, Palette, AlertCircle, Hash, MessageSquare,
-  UserPlus, BookOpen, Calendar, Share2, Pin, Eye, Megaphone, ArrowLeft
+  UserPlus, BookOpen, Calendar, Share2, Pin, Eye, Megaphone, ArrowLeft,
+  Copy, Link2, KeyRound, EyeOff
 } from "lucide-react";
 import "./CreateCommunity.css";
 
@@ -198,8 +199,27 @@ export function CreateCommunity() {
     set("permissions", { ...form.permissions, [id]: !form.permissions[id] });
 
   const [connected, setConnected] = useState<Record<string, boolean>>({});
+  const [inviteCode, setInviteCode] = useState("");
+  const [passcode, setPasscode] = useState("");
+  const [showPasscode, setShowPasscode] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const generateCode = (prefix: string) => {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const rand = (n: number) => Array.from({ length: n }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+    return `${prefix}${rand(4)}`;
+  };
+
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard.writeText(text).catch(() => {});
+    setCopied(key);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
   const handleSubmit = () => {
+    const prefix = form.name.slice(0, 4).toUpperCase().replace(/[^A-Z]/g, "X").padEnd(4, "X");
+    setInviteCode(`${prefix}-${generateCode("")}`);
+    if (form.privacy !== "public") setPasscode(generateCode(""));
     setSubmitted(true);
   };
 
@@ -272,6 +292,93 @@ export function CreateCommunity() {
             <p className="text-neutral-500 text-sm">
               <span className="font-semibold text-neutral-700">"{form.name}"</span> is live. You're the creator and admin.
             </p>
+          </motion.div>
+
+          {/* Invite link & codes card */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden mb-4"
+          >
+            <div className="px-6 pt-5 pb-4 border-b border-neutral-100">
+              <h2 className="text-base font-semibold text-neutral-900">Invite people to join</h2>
+              <p className="text-xs text-neutral-400 mt-0.5">Share the link or give members your invite code to get them in</p>
+            </div>
+
+            <div className="px-6 py-4 space-y-3">
+              {/* Invite link */}
+              <div>
+                <label className="block text-xs font-medium text-neutral-500 mb-1.5 flex items-center gap-1.5">
+                  <Link2 size={11} /> Invite link
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg text-xs font-mono text-neutral-600 truncate select-all">
+                    communityhub.app/join/{inviteCode.toLowerCase()}
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(`https://communityhub.app/join/${inviteCode.toLowerCase()}`, "link")}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all flex-shrink-0 ${
+                      copied === "link" ? "bg-emerald-100 text-emerald-700" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                    }`}
+                  >
+                    {copied === "link" ? <><Check size={12} strokeWidth={3} /> Copied!</> : <><Copy size={12} /> Copy</>}
+                  </button>
+                </div>
+              </div>
+
+              {/* Invite code */}
+              <div>
+                <label className="block text-xs font-medium text-neutral-500 mb-1.5 flex items-center gap-1.5">
+                  <KeyRound size={11} /> Invite code
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg text-sm font-mono font-bold text-neutral-900 tracking-widest">
+                    {inviteCode}
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(inviteCode, "code")}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all flex-shrink-0 ${
+                      copied === "code" ? "bg-emerald-100 text-emerald-700" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                    }`}
+                  >
+                    {copied === "code" ? <><Check size={12} strokeWidth={3} /> Copied!</> : <><Copy size={12} /> Copy</>}
+                  </button>
+                </div>
+              </div>
+
+              {/* Passcode — only for private/invite-only */}
+              {passcode && (
+                <div>
+                  <label className="block text-xs font-medium text-neutral-500 mb-1.5 flex items-center gap-1.5">
+                    <Lock size={11} /> Passcode
+                    <span className="text-neutral-400 font-normal">— required to join this {form.privacy === "invite" ? "invite-only" : "private"} community</span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg text-sm font-mono font-bold text-neutral-900 tracking-widest flex items-center justify-between">
+                      <span>{showPasscode ? passcode : "••••••••"}</span>
+                      <button
+                        onClick={() => setShowPasscode(v => !v)}
+                        className="text-neutral-400 hover:text-neutral-600 transition-colors ml-2"
+                      >
+                        {showPasscode ? <EyeOff size={13} /> : <Eye size={13} />}
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(passcode, "pass")}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all flex-shrink-0 ${
+                        copied === "pass" ? "bg-emerald-100 text-emerald-700" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                      }`}
+                    >
+                      {copied === "pass" ? <><Check size={12} strokeWidth={3} /> Copied!</> : <><Copy size={12} /> Copy</>}
+                    </button>
+                  </div>
+                  <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 mt-2">
+                    Share this passcode only with people you trust. You can reset it from community settings.
+                  </p>
+                </div>
+              )}
+            </div>
           </motion.div>
 
           {/* Integration cards */}

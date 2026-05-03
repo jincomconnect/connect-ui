@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { Heart, MessageCircle, Share2, MapPin, TrendingUp, Search as SearchIcon, Filter, Users, Phone, MessageSquare, Send } from "lucide-react";
+import { Heart, MessageCircle, Share2, MapPin, TrendingUp, Search as SearchIcon, Filter, Users, Phone, MessageSquare, Send, KeyRound, Lock, Check, AlertCircle, ChevronDown, ChevronUp, Eye, EyeOff } from "lucide-react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import "./Search.css";
 
@@ -155,6 +155,19 @@ const allServices: SearchResult[] = [
 
 const categories = ["All", "Design", "Technology", "Marketing", "Creative", "Health"];
 
+const MOCK_VALID_CODES: Record<string, { name: string; privacy: "public" | "private"; requiresPasscode: boolean }> = {
+  "WELC-2025": { name: "Wellness Network", privacy: "public", requiresPasscode: false },
+  "DSGN-HUB1": { name: "Local Designers", privacy: "private", requiresPasscode: true },
+  "TECH-FREE": { name: "Tech Freelancers", privacy: "public", requiresPasscode: false },
+  "RELI-COMM": { name: "Faith & Culture Circle", privacy: "private", requiresPasscode: true },
+};
+const MOCK_PASSCODES: Record<string, string> = {
+  "DSGN-HUB1": "design99",
+  "RELI-COMM": "faith2025",
+};
+
+type JoinStatus = "idle" | "loading" | "needs-passcode" | "success" | "error-code" | "error-pass";
+
 export function Search() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
@@ -162,14 +175,19 @@ export function Search() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [showComments, setShowComments] = useState<Record<string, boolean>>({});
 
+  const [joinOpen, setJoinOpen] = useState(true);
+  const [inviteInput, setInviteInput] = useState("");
+  const [passcodeInput, setPasscodeInput] = useState("");
+  const [showPasscode, setShowPasscode] = useState(false);
+  const [joinStatus, setJoinStatus] = useState<JoinStatus>("idle");
+  const [joinedCommunity, setJoinedCommunity] = useState("");
+
   const toggleComments = (postId: string) => {
     setShowComments(prev => ({ ...prev, [postId]: !prev[postId] }));
   };
 
   useEffect(() => {
-    // Filter results based on search query and category
     let filtered = allServices;
-
     if (query.trim()) {
       const lowerQuery = query.toLowerCase();
       filtered = filtered.filter(
@@ -180,17 +198,206 @@ export function Search() {
           service.author.toLowerCase().includes(lowerQuery)
       );
     }
-
     if (selectedCategory !== "All") {
       filtered = filtered.filter(service => service.category === selectedCategory);
     }
-
     setResults(filtered);
   }, [query, selectedCategory]);
+
+  const handleJoin = () => {
+    const code = inviteInput.trim().toUpperCase();
+    const community = MOCK_VALID_CODES[code];
+
+    if (!community) {
+      setJoinStatus("error-code");
+      return;
+    }
+
+    if (community.requiresPasscode && joinStatus !== "needs-passcode") {
+      setJoinStatus("needs-passcode");
+      return;
+    }
+
+    if (community.requiresPasscode) {
+      setJoinStatus("loading");
+      setTimeout(() => {
+        if (passcodeInput.trim() === MOCK_PASSCODES[code]) {
+          setJoinedCommunity(community.name);
+          setJoinStatus("success");
+        } else {
+          setJoinStatus("error-pass");
+        }
+      }, 700);
+      return;
+    }
+
+    setJoinStatus("loading");
+    setTimeout(() => {
+      setJoinedCommunity(community.name);
+      setJoinStatus("success");
+    }, 700);
+  };
+
+  const resetJoin = () => {
+    setInviteInput("");
+    setPasscodeInput("");
+    setJoinStatus("idle");
+    setJoinedCommunity("");
+  };
 
   return (
     <div className="min-h-screen bg-neutral-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
+
+        {/* Join by invite code panel */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden mb-6"
+        >
+          <button
+            onClick={() => setJoinOpen(v => !v)}
+            className="w-full flex items-center justify-between px-5 py-4 hover:bg-neutral-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-neutral-900 flex items-center justify-center">
+                <KeyRound size={15} className="text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-neutral-900">Join a private community</p>
+                <p className="text-xs text-neutral-400">Have an invite code or passcode? Enter it here</p>
+              </div>
+            </div>
+            {joinOpen ? <ChevronUp size={16} className="text-neutral-400" /> : <ChevronDown size={16} className="text-neutral-400" />}
+          </button>
+
+          <AnimatePresence>
+            {joinOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                className="overflow-hidden"
+              >
+                <div className="px-5 pb-5 border-t border-neutral-100">
+                  {joinStatus === "success" ? (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.97 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex flex-col items-center py-5 gap-3"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <Check size={22} className="text-emerald-600" strokeWidth={2.5} />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-semibold text-neutral-900">You've joined <span className="text-emerald-700">{joinedCommunity}</span>!</p>
+                        <p className="text-xs text-neutral-400 mt-0.5">Welcome — check your communities to get started.</p>
+                      </div>
+                      <button onClick={resetJoin} className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors underline underline-offset-2">
+                        Join another community
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <div className="pt-4 space-y-3">
+                      {/* Invite code */}
+                      <div>
+                        <label className="block text-xs font-medium text-neutral-600 mb-1.5">Invite code</label>
+                        <div className="relative">
+                          <KeyRound size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                          <input
+                            type="text"
+                            value={inviteInput}
+                            onChange={e => { setInviteInput(e.target.value.toUpperCase()); setJoinStatus("idle"); }}
+                            placeholder="e.g. WELC-2025"
+                            maxLength={12}
+                            className={`w-full pl-9 pr-4 py-2.5 border rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all ${
+                              joinStatus === "error-code" ? "border-red-300 bg-red-50" : "border-neutral-200"
+                            }`}
+                          />
+                        </div>
+                        {joinStatus === "error-code" && (
+                          <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
+                            <AlertCircle size={11} /> Invalid invite code. Check and try again.
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Passcode — shown when community requires it */}
+                      <AnimatePresence>
+                        {joinStatus === "needs-passcode" && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
+                          >
+                            <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+                              Passcode
+                              <span className="ml-1.5 text-neutral-400 font-normal">— this community requires a passcode</span>
+                            </label>
+                            <div className="relative">
+                              <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                              <input
+                                type={showPasscode ? "text" : "password"}
+                                value={passcodeInput}
+                                onChange={e => { setPasscodeInput(e.target.value); if (joinStatus === "error-pass") setJoinStatus("needs-passcode"); }}
+                                placeholder="Enter passcode"
+                                autoFocus
+                                className={`w-full pl-9 pr-10 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all ${
+                                  joinStatus === "error-pass" ? "border-red-300 bg-red-50" : "border-neutral-200"
+                                }`}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPasscode(v => !v)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                              >
+                                {showPasscode ? <EyeOff size={14} /> : <Eye size={14} />}
+                              </button>
+                            </div>
+                            {joinStatus === "error-pass" && (
+                              <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
+                                <AlertCircle size={11} /> Incorrect passcode. Please try again.
+                              </p>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      <div className="flex items-center justify-between gap-3 pt-1">
+                        <p className="text-xs text-neutral-400">
+                          {joinStatus === "needs-passcode"
+                            ? "Hint: try demo code with passcode"
+                            : "Try: WELC-2025 · DSGN-HUB1 · TECH-FREE"}
+                        </p>
+                        <button
+                          onClick={handleJoin}
+                          disabled={!inviteInput.trim() || joinStatus === "loading"}
+                          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+                            !inviteInput.trim() || joinStatus === "loading"
+                              ? "bg-neutral-200 text-neutral-400 cursor-not-allowed"
+                              : "bg-neutral-900 text-white hover:bg-neutral-700"
+                          }`}
+                        >
+                          {joinStatus === "loading" ? (
+                            <span className="flex items-center gap-1.5">
+                              <svg className="animate-spin w-3 h-3" viewBox="0 0 24 24" fill="none">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                              </svg>
+                              Joining…
+                            </span>
+                          ) : joinStatus === "needs-passcode" ? "Verify & Join" : "Join Community"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -310,14 +517,14 @@ export function Search() {
                       <Heart size={20} />
                       <span className="text-sm font-medium">{result.likes}</span>
                     </button>
-                    <button 
+                    <button
                       onClick={() => toggleComments(result.id)}
                       className={`flex items-center gap-2 transition-colors ${showComments[result.id] ? 'text-blue-600' : 'text-neutral-600 hover:text-blue-600'}`}
                     >
                       <MessageCircle size={20} />
                       <span className="text-sm font-medium">{result.comments}</span>
                     </button>
-                    
+
                     <div className="flex items-center gap-4 ml-auto">
                       <Tooltip.Root>
                         <Tooltip.Trigger asChild>
@@ -326,10 +533,7 @@ export function Search() {
                           </button>
                         </Tooltip.Trigger>
                         <Tooltip.Portal>
-                          <Tooltip.Content
-                            className="bg-neutral-900 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-lg z-50"
-                            sideOffset={5}
-                          >
+                          <Tooltip.Content className="bg-neutral-900 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-lg z-50" sideOffset={5}>
                             Call {result.author}
                             <Tooltip.Arrow className="fill-neutral-900" />
                           </Tooltip.Content>
@@ -343,10 +547,7 @@ export function Search() {
                           </button>
                         </Tooltip.Trigger>
                         <Tooltip.Portal>
-                          <Tooltip.Content
-                            className="bg-neutral-900 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-lg z-50"
-                            sideOffset={5}
-                          >
+                          <Tooltip.Content className="bg-neutral-900 text-white text-xs px-3 py-1.5 rounded-lg font-medium shadow-lg z-50" sideOffset={5}>
                             Chat with {result.author}
                             <Tooltip.Arrow className="fill-neutral-900" />
                           </Tooltip.Content>
@@ -372,9 +573,8 @@ export function Search() {
                     >
                       <div className="p-6">
                         <h4 className="font-semibold text-neutral-900 mb-4">Comments</h4>
-                        
+
                         <div className="space-y-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                          {/* Mock Comments */}
                           {[1, 2, 3].map((i) => (
                             <div key={i} className="flex gap-3">
                               <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-medium text-xs flex-shrink-0">
@@ -384,8 +584,8 @@ export function Search() {
                                 <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-neutral-100">
                                   <p className="text-sm font-medium text-neutral-900">User {i}</p>
                                   <p className="text-sm text-neutral-600 mt-1">
-                                    {i === 1 ? "This sounds amazing! I'd love to learn more about the specifics of what you're offering." : 
-                                     i === 2 ? "Are there any prerequisites before getting started?" : 
+                                    {i === 1 ? "This sounds amazing! I'd love to learn more about the specifics of what you're offering." :
+                                     i === 2 ? "Are there any prerequisites before getting started?" :
                                      "Sent you a direct message to discuss further!"}
                                   </p>
                                 </div>
@@ -394,15 +594,14 @@ export function Search() {
                             </div>
                           ))}
                         </div>
-                        
-                        {/* Input section */}
+
                         <div className="mt-4 flex gap-3 items-center bg-white p-2 rounded-full border border-neutral-200 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100 transition-all shadow-sm">
                           <div className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 flex-shrink-0 ml-1 font-medium text-xs">
                             ME
                           </div>
-                          <input 
-                            type="text" 
-                            placeholder="Write a comment..." 
+                          <input
+                            type="text"
+                            placeholder="Write a comment..."
                             className="flex-1 bg-transparent border-none outline-none text-sm px-2 text-neutral-900 placeholder:text-neutral-400"
                           />
                           <button className="p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors flex-shrink-0 mr-1" aria-label="Post comment">
