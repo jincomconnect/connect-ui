@@ -2,24 +2,35 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Mail, Lock, Eye, EyeOff, KeyRound, User, Shield } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 import "./Login.css";
 
 type Mode = "member" | "admin";
 
 export function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [mode, setMode] = useState<Mode>("member");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [adminKey, setAdminKey] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showKey, setShowKey] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
     if (mode === "admin") {
+      if (adminKey !== "admin123") {
+        setError("Invalid admin access key. Try: admin123");
+        return;
+      }
+      login("admin");
       navigate("/admin");
     } else {
+      login("member");
       navigate("/");
     }
   };
@@ -33,7 +44,6 @@ export function Login() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        {/* Brand */}
         <div className="text-center mb-8">
           <div className={`inline-flex w-14 h-14 rounded-2xl items-center justify-center mb-4 transition-colors duration-300 ${isAdmin ? "bg-neutral-900" : "bg-neutral-100"}`}>
             {isAdmin
@@ -50,11 +60,10 @@ export function Login() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden">
-          {/* Mode toggle */}
           <div className="flex border-b border-neutral-100">
             <button
               type="button"
-              onClick={() => setMode("member")}
+              onClick={() => { setMode("member"); setError(""); }}
               className={`flex-1 py-3.5 text-sm font-medium transition-colors ${
                 mode === "member"
                   ? "text-neutral-900 border-b-2 border-neutral-900 -mb-px"
@@ -65,7 +74,7 @@ export function Login() {
             </button>
             <button
               type="button"
-              onClick={() => setMode("admin")}
+              onClick={() => { setMode("admin"); setError(""); }}
               className={`flex-1 py-3.5 text-sm font-medium transition-colors ${
                 mode === "admin"
                   ? "text-neutral-900 border-b-2 border-neutral-900 -mb-px"
@@ -87,7 +96,6 @@ export function Login() {
                 onSubmit={handleSubmit}
                 className="space-y-5"
               >
-                {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-1.5">Email</label>
                   <div className="relative">
@@ -96,6 +104,7 @@ export function Login() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
                       className="w-full pl-9 pr-4 py-2.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
                       placeholder="you@example.com"
                       required
@@ -103,7 +112,6 @@ export function Login() {
                   </div>
                 </div>
 
-                {/* Password */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="block text-sm font-medium text-neutral-700">Password</label>
@@ -117,6 +125,7 @@ export function Login() {
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
                       className="w-full pl-9 pr-10 py-2.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
                       placeholder="••••••••"
                       required
@@ -131,7 +140,6 @@ export function Login() {
                   </div>
                 </div>
 
-                {/* Admin key — only visible in admin mode */}
                 {isAdmin && (
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-1.5">Admin access key</label>
@@ -140,7 +148,8 @@ export function Login() {
                       <input
                         type={showKey ? "text" : "password"}
                         value={adminKey}
-                        onChange={(e) => setAdminKey(e.target.value)}
+                        onChange={(e) => { setAdminKey(e.target.value); setError(""); }}
+                        autoComplete="off"
                         className="w-full pl-9 pr-10 py-2.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition-all"
                         placeholder="Enter your admin key"
                         required
@@ -154,18 +163,24 @@ export function Login() {
                       </button>
                     </div>
                     <p className="mt-1.5 text-xs text-neutral-400">
-                      Contact your platform administrator to obtain an access key.
+                      Hint: use <span className="font-mono text-neutral-600">admin123</span> for demo access.
                     </p>
                   </div>
                 )}
 
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-red-500 bg-red-50 border border-red-100 rounded-lg px-3 py-2"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+
                 <button
                   type="submit"
-                  className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-colors ${
-                    isAdmin
-                      ? "bg-neutral-900 text-white hover:bg-neutral-700"
-                      : "bg-neutral-900 text-white hover:bg-neutral-700"
-                  }`}
+                  className="w-full py-2.5 rounded-lg text-sm font-semibold bg-neutral-900 text-white hover:bg-neutral-700 transition-colors"
                 >
                   {isAdmin ? "Sign in as Admin" : "Sign in"}
                 </button>

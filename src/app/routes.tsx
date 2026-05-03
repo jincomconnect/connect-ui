@@ -12,6 +12,8 @@ import { Settings } from "./components/Settings/Settings";
 import { Help } from "./components/Help/Help";
 import { NotFound } from "./components/NotFound/NotFound";
 import { MyPosts } from "./components/MyPosts/MyPosts";
+import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
+import { Unauthorized } from "./components/Unauthorized/Unauthorized";
 
 export const router = createBrowserRouter([
   {
@@ -20,10 +22,18 @@ export const router = createBrowserRouter([
     children: [
       { path: "login", Component: Login },
       { path: "signup", Component: Signup },
+      { path: "unauthorized", Component: Unauthorized },
       { index: true, Component: Home },
       { path: "communities", Component: Communities },
       { path: "community/:id", Component: CommunityDetail },
-      { path: "admin", Component: AdminPanel },
+      {
+        path: "admin",
+        element: (
+          <ProtectedRoute requiredRole="admin">
+            <AdminPanel />
+          </ProtectedRoute>
+        ),
+      },
       { path: "search", Component: Search },
       { path: "profile", Component: Profile },
       { path: "my-posts", Component: MyPosts },

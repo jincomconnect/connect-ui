@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import { useSidebar } from "../../context/SidebarContext";
+import { useAuth } from "../../context/AuthContext";
 import { JoinCommunityModal } from "../JoinCommunity/JoinCommunityModal";
 import "./Root.css";
 
@@ -118,11 +119,12 @@ export function Root() {
   const currentCommunityId = communityMatch ? communityMatch[1] : null;
   const currentCommunity = currentCommunityId ? mockCommunitiesData[currentCommunityId] : null;
 
-  // Mock auth state - replace with real auth when Supabase is connected
+  const { role, logout } = useAuth();
   const isAuthenticated = !isAuthPage;
-  const isAdmin = true; // Mock admin status
+  const isAdmin = role === "admin";
 
   const handleLogout = () => {
+    logout();
     navigate("/login");
   };
 
