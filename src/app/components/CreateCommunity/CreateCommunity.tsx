@@ -197,43 +197,170 @@ export function CreateCommunity() {
   const togglePermission = (id: string) =>
     set("permissions", { ...form.permissions, [id]: !form.permissions[id] });
 
+  const [connected, setConnected] = useState<Record<string, boolean>>({});
+
   const handleSubmit = () => {
     setSubmitted(true);
   };
 
   const color = ACCENT_COLORS[form.color];
 
+  const INTEGRATIONS = [
+    {
+      id: "whatsapp",
+      name: "WhatsApp",
+      tagline: "Share via group or broadcast",
+      description: "Let members join through a WhatsApp invite link or broadcast your community updates to a group.",
+      bg: "bg-[#25D366]",
+      border: "border-[#25D366]",
+      ring: "focus:ring-[#25D366]",
+      textColor: "text-[#25D366]",
+      lightBg: "bg-green-50",
+      logo: (
+        <svg viewBox="0 0 32 32" fill="currentColor" className="w-7 h-7 text-white">
+          <path d="M16 3C9.373 3 4 8.373 4 15c0 2.385.668 4.61 1.822 6.5L4 29l7.703-1.797A11.94 11.94 0 0 0 16 28c6.627 0 12-5.373 12-12S22.627 3 16 3zm0 2c5.523 0 10 4.477 10 10S21.523 25 16 25a9.94 9.94 0 0 1-5.02-1.352l-.36-.213-4.57 1.066 1.095-4.46-.234-.373A9.94 9.94 0 0 1 6 15c0-5.523 4.477-10 10-10zm-3.207 5.793c-.2-.002-.42.003-.625.097-.203.094-.617.364-1.02.844-.402.48-.965 1.328-.965 2.735 0 1.408 1.008 2.77 1.148 2.962.14.191 1.946 3.074 4.782 4.19 2.385.941 2.87.754 3.387.707.516-.047 1.664-.68 1.898-1.336.234-.656.234-1.219.164-1.336-.07-.117-.258-.188-.54-.328-.28-.14-1.664-.82-1.922-.914-.258-.094-.445-.14-.633.14-.187.28-.726.915-.89 1.102-.163.188-.327.211-.608.07-.281-.14-1.184-.436-2.256-1.391-.834-.742-1.398-1.659-1.562-1.94-.164-.28-.017-.43.123-.57.126-.124.281-.327.422-.492.14-.164.187-.281.281-.468.094-.187.047-.352-.023-.492-.07-.14-.62-1.523-.86-2.082-.226-.539-.46-.46-.633-.468z"/>
+        </svg>
+      ),
+    },
+    {
+      id: "instagram",
+      name: "Instagram",
+      tagline: "Promote via bio & stories",
+      description: "Add your community link to your Instagram bio and share updates through stories to attract new members.",
+      bg: "bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400",
+      border: "border-pink-400",
+      ring: "focus:ring-pink-400",
+      textColor: "text-pink-600",
+      lightBg: "bg-pink-50",
+      logo: (
+        <svg viewBox="0 0 32 32" fill="currentColor" className="w-7 h-7 text-white">
+          <path d="M16 4c-3.267 0-3.675.014-4.957.072-1.278.058-2.153.261-2.918.558a5.888 5.888 0 0 0-2.13 1.386 5.888 5.888 0 0 0-1.386 2.13c-.297.765-.5 1.64-.558 2.918C4.014 12.325 4 12.733 4 16s.014 3.675.072 4.957c.058 1.278.261 2.153.558 2.918a5.888 5.888 0 0 0 1.386 2.13 5.888 5.888 0 0 0 2.13 1.386c.765.297 1.64.5 2.918.558C12.325 27.986 12.733 28 16 28s3.675-.014 4.957-.072c1.278-.058 2.153-.261 2.918-.558a5.888 5.888 0 0 0 2.13-1.386 5.888 5.888 0 0 0 1.386-2.13c.297-.765.5-1.64.558-2.918.058-1.282.072-1.69.072-4.957s-.014-3.675-.072-4.957c-.058-1.278-.261-2.153-.558-2.918a5.888 5.888 0 0 0-1.386-2.13 5.888 5.888 0 0 0-2.13-1.386c-.765-.297-1.64-.5-2.918-.558C19.675 4.014 19.267 4 16 4zm0 2.162c3.21 0 3.59.012 4.858.07 1.172.054 1.808.25 2.231.414.561.218.961.478 1.382.899.421.421.681.821.899 1.382.164.423.36 1.059.414 2.231.058 1.268.07 1.648.07 4.858s-.012 3.59-.07 4.858c-.054 1.172-.25 1.808-.414 2.231a3.72 3.72 0 0 1-.899 1.382 3.72 3.72 0 0 1-1.382.899c-.423.164-1.059.36-2.231.414-1.268.058-1.648.07-4.858.07s-3.59-.012-4.858-.07c-1.172-.054-1.808-.25-2.231-.414a3.72 3.72 0 0 1-1.382-.899 3.72 3.72 0 0 1-.899-1.382c-.164-.423-.36-1.059-.414-2.231C6.174 19.59 6.162 19.21 6.162 16s.012-3.59.07-4.858c.054-1.172.25-1.808.414-2.231a3.72 3.72 0 0 1 .899-1.382 3.72 3.72 0 0 1 1.382-.899c.423-.164 1.059-.36 2.231-.414C12.41 6.174 12.79 6.162 16 6.162zM16 10a6 6 0 1 0 0 12 6 6 0 0 0 0-12zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm6.406-3.844a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z"/>
+        </svg>
+      ),
+    },
+    {
+      id: "telegram",
+      name: "Telegram",
+      tagline: "Create a linked channel",
+      description: "Sync your community with a Telegram channel or group so members can receive announcements instantly.",
+      bg: "bg-[#2AABEE]",
+      border: "border-[#2AABEE]",
+      ring: "focus:ring-[#2AABEE]",
+      textColor: "text-[#2AABEE]",
+      lightBg: "bg-sky-50",
+      logo: (
+        <svg viewBox="0 0 32 32" fill="currentColor" className="w-7 h-7 text-white">
+          <path d="M16 4C9.373 4 4 9.373 4 16s5.373 12 12 12 12-5.373 12-12S22.627 4 16 4zm5.894 8.221-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/>
+        </svg>
+      ),
+    },
+  ];
+
   if (submitted) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] bg-neutral-50 flex items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center max-w-sm"
-        >
-          <div className={`inline-flex w-20 h-20 rounded-3xl bg-gradient-to-br ${color.from} ${color.to} items-center justify-center mb-6 shadow-lg`}>
-            <Check size={36} className="text-white" strokeWidth={2.5} />
-          </div>
-          <h1 className="text-2xl font-bold text-neutral-900 mb-2">Community created!</h1>
-          <p className="text-neutral-500 text-sm mb-2">
-            <span className="font-semibold text-neutral-700">"{form.name}"</span> is ready. You're now the creator and admin.
-          </p>
-          <p className="text-neutral-400 text-xs mb-8">In a real app, this would be saved to your database.</p>
-          <div className="flex items-center justify-center gap-3">
+      <div className="min-h-[calc(100vh-4rem)] bg-neutral-50 py-10 px-4">
+        <div className="max-w-2xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8"
+          >
+            <div className={`inline-flex w-16 h-16 rounded-2xl bg-gradient-to-br ${color.from} ${color.to} items-center justify-center mb-4 shadow-lg`}>
+              <Check size={30} className="text-white" strokeWidth={2.5} />
+            </div>
+            <h1 className="text-2xl font-bold text-neutral-900 mb-1">Community created!</h1>
+            <p className="text-neutral-500 text-sm">
+              <span className="font-semibold text-neutral-700">"{form.name}"</span> is live. You're the creator and admin.
+            </p>
+          </motion.div>
+
+          {/* Integration cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden mb-5"
+          >
+            <div className="px-6 pt-6 pb-4 border-b border-neutral-100">
+              <h2 className="text-base font-semibold text-neutral-900">Connect your social channels</h2>
+              <p className="text-xs text-neutral-400 mt-0.5">Reach more people by linking your community to your existing social presence</p>
+            </div>
+
+            <div className="divide-y divide-neutral-100">
+              {INTEGRATIONS.map((platform, idx) => (
+                <motion.div
+                  key={platform.id}
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.15 + idx * 0.07 }}
+                  className="flex items-center gap-4 px-6 py-4"
+                >
+                  {/* Logo */}
+                  <div className={`w-12 h-12 rounded-xl ${platform.bg} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                    {platform.logo}
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="text-sm font-semibold text-neutral-900">{platform.name}</p>
+                      <span className="text-xs text-neutral-400">{platform.tagline}</span>
+                    </div>
+                    <p className="text-xs text-neutral-500 leading-relaxed">{platform.description}</p>
+                  </div>
+
+                  {/* Connect button */}
+                  <div className="flex-shrink-0">
+                    {connected[platform.id] ? (
+                      <motion.span
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold ${platform.lightBg} ${platform.textColor} border ${platform.border}`}
+                      >
+                        <Check size={12} strokeWidth={3} />
+                        Connected
+                      </motion.span>
+                    ) : (
+                      <button
+                        onClick={() => setConnected(prev => ({ ...prev, [platform.id]: true }))}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border-2 ${platform.border} ${platform.textColor} hover:${platform.lightBg} transition-colors`}
+                      >
+                        Connect
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            <div className="px-6 py-3 bg-neutral-50 border-t border-neutral-100">
+              <p className="text-xs text-neutral-400 text-center">
+                Integrations can be managed anytime from your community settings
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Action buttons */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+            className="flex items-center justify-center gap-3"
+          >
             <button
               onClick={() => navigate("/communities")}
-              className="px-4 py-2 text-sm font-medium text-neutral-600 bg-neutral-100 rounded-lg hover:bg-neutral-200 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-neutral-600 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
             >
               Browse communities
             </button>
             <button
-              onClick={() => { setSubmitted(false); setStep(0); setForm({ name: "", description: "", category: "", tags: [], tagInput: "", color: 0, theme: 0, privacy: "public", maxMembers: 500, permissions: initialPermissions }); }}
+              onClick={() => { setSubmitted(false); setConnected({}); setStep(0); setForm({ name: "", description: "", category: "", tags: [], tagInput: "", color: 0, theme: 0, privacy: "public", maxMembers: 500, permissions: initialPermissions }); }}
               className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r ${color.from} ${color.to} rounded-lg hover:opacity-90 transition-opacity`}
             >
               Create another
             </button>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     );
   }
