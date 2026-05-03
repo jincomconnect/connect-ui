@@ -12,7 +12,7 @@ const CATEGORIES = [
   "Design", "Technology", "Marketing", "Photography", "Health & Wellness",
   "Education", "Finance", "Food & Beverage", "Creative", "Consulting",
   "Legal", "Real Estate", "Sports & Fitness", "Music",
-  "Religious & Cultural", "Other",
+  "Religious", "Cultural", "Other",
 ];
 
 interface Theme {
