@@ -305,6 +305,16 @@ export function Root() {
 
                   <DropdownMenu.Item asChild>
                     <Link
+                      to="/create-community"
+                      className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-700 rounded-lg hover:bg-neutral-50 outline-none cursor-pointer transition-colors"
+                    >
+                      <UserPlus size={16} />
+                      Create Community
+                    </Link>
+                  </DropdownMenu.Item>
+
+                  <DropdownMenu.Item asChild>
+                    <Link
                       to="/settings"
                       className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-700 rounded-lg hover:bg-neutral-50 outline-none cursor-pointer transition-colors"
                     >
