@@ -11,7 +11,92 @@ import "./CreateCommunity.css";
 const CATEGORIES = [
   "Design", "Technology", "Marketing", "Photography", "Health & Wellness",
   "Education", "Finance", "Food & Beverage", "Creative", "Consulting",
-  "Legal", "Real Estate", "Sports & Fitness", "Music", "Other",
+  "Legal", "Real Estate", "Sports & Fitness", "Music",
+  "Religious & Cultural", "Other",
+];
+
+interface Theme {
+  id: string;
+  label: string;
+  description: string;
+  preview: React.ReactNode;
+}
+
+const THEMES: Theme[] = [
+  {
+    id: "classic",
+    label: "Classic",
+    description: "Single feed, card posts",
+    preview: (
+      <div className="w-full h-full flex flex-col gap-1 p-1.5">
+        <div className="h-1.5 w-3/4 bg-current rounded-full opacity-40" />
+        <div className="flex-1 flex flex-col gap-1">
+          <div className="h-4 w-full bg-current rounded opacity-20" />
+          <div className="h-4 w-full bg-current rounded opacity-20" />
+          <div className="h-4 w-5/6 bg-current rounded opacity-20" />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "magazine",
+    label: "Magazine",
+    description: "Featured hero + article grid",
+    preview: (
+      <div className="w-full h-full flex flex-col gap-1 p-1.5">
+        <div className="h-5 w-full bg-current rounded opacity-30" />
+        <div className="flex gap-1 flex-1">
+          <div className="flex-1 bg-current rounded opacity-20" />
+          <div className="w-1/3 flex flex-col gap-1">
+            <div className="flex-1 bg-current rounded opacity-20" />
+            <div className="flex-1 bg-current rounded opacity-20" />
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: "grid",
+    label: "Grid",
+    description: "Photo & card grid layout",
+    preview: (
+      <div className="w-full h-full grid grid-cols-3 gap-1 p-1.5">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="bg-current rounded opacity-20" />
+        ))}
+      </div>
+    ),
+  },
+  {
+    id: "minimal",
+    label: "Minimal",
+    description: "Text-first, distraction-free",
+    preview: (
+      <div className="w-full h-full flex flex-col gap-1.5 p-1.5 justify-center">
+        <div className="h-1 w-1/2 bg-current rounded-full opacity-50 mx-auto" />
+        <div className="h-1 w-full bg-current rounded-full opacity-20" />
+        <div className="h-1 w-full bg-current rounded-full opacity-20" />
+        <div className="h-1 w-3/4 bg-current rounded-full opacity-20" />
+      </div>
+    ),
+  },
+  {
+    id: "board",
+    label: "Board",
+    description: "Columns organised by topic",
+    preview: (
+      <div className="w-full h-full flex gap-1 p-1.5">
+        {[3, 2, 3].map((rows, col) => (
+          <div key={col} className="flex-1 flex flex-col gap-1">
+            <div className="h-1.5 w-full bg-current rounded-full opacity-50" />
+            {Array.from({ length: rows }).map((_, i) => (
+              <div key={i} className="flex-1 bg-current rounded opacity-20" />
+            ))}
+          </div>
+        ))}
+      </div>
+    ),
+  },
 ];
 
 const ACCENT_COLORS = [
@@ -55,6 +140,7 @@ interface FormData {
   tags: string[];
   tagInput: string;
   color: number;
+  theme: number;
   privacy: Privacy;
   maxMembers: number | "";
   permissions: Record<string, boolean>;
@@ -76,6 +162,7 @@ export function CreateCommunity() {
     tags: [],
     tagInput: "",
     color: 0,
+    theme: 0,
     privacy: "public",
     maxMembers: 500,
     permissions: initialPermissions,
@@ -140,7 +227,7 @@ export function CreateCommunity() {
               Browse communities
             </button>
             <button
-              onClick={() => { setSubmitted(false); setStep(0); setForm({ name: "", description: "", category: "", tags: [], tagInput: "", color: 0, privacy: "public", maxMembers: 500, permissions: initialPermissions }); }}
+              onClick={() => { setSubmitted(false); setStep(0); setForm({ name: "", description: "", category: "", tags: [], tagInput: "", color: 0, theme: 0, privacy: "public", maxMembers: 500, permissions: initialPermissions }); }}
               className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r ${color.from} ${color.to} rounded-lg hover:opacity-90 transition-opacity`}
             >
               Create another
@@ -331,6 +418,38 @@ export function CreateCommunity() {
                       <span className="text-white text-sm font-semibold truncate">{form.name || "Community name preview"}</span>
                     </div>
                   </div>
+
+                  {/* Theme picker */}
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-1">
+                      Layout theme
+                    </label>
+                    <p className="text-xs text-neutral-400 mb-3">Controls how posts and content are arranged for members</p>
+                    <div className="grid grid-cols-5 gap-2">
+                      {THEMES.map((theme, i) => (
+                        <button
+                          key={theme.id}
+                          type="button"
+                          onClick={() => set("theme", i)}
+                          className={`flex flex-col items-center gap-2 group transition-all`}
+                        >
+                          <div className={`w-full aspect-[4/3] rounded-lg border-2 transition-all overflow-hidden ${
+                            form.theme === i
+                              ? `border-neutral-900 shadow-md`
+                              : "border-neutral-200 hover:border-neutral-400"
+                          } ${form.theme === i ? `bg-gradient-to-br ${color.from} ${color.to} text-white` : "bg-neutral-100 text-neutral-400"}`}>
+                            {theme.preview}
+                          </div>
+                          <div className="text-center">
+                            <p className={`text-xs font-semibold leading-none mb-0.5 ${form.theme === i ? "text-neutral-900" : "text-neutral-500"}`}>
+                              {theme.label}
+                            </p>
+                            <p className="text-[10px] text-neutral-400 leading-tight hidden sm:block">{theme.description}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -512,6 +631,18 @@ export function CreateCommunity() {
                       <div className="flex items-center gap-4 mt-4 pt-3 border-t border-neutral-100 text-xs text-neutral-500">
                         <span className="flex items-center gap-1"><Users size={12} /> Up to {typeof form.maxMembers === "number" ? form.maxMembers.toLocaleString() : "—"} members</span>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Theme summary */}
+                  <div className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-200 bg-neutral-50">
+                    <div>
+                      <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-0.5">Layout theme</p>
+                      <p className="text-sm font-semibold text-neutral-900">{THEMES[form.theme].label}</p>
+                      <p className="text-xs text-neutral-400">{THEMES[form.theme].description}</p>
+                    </div>
+                    <div className={`w-20 h-14 rounded-lg border-2 border-neutral-900 overflow-hidden bg-gradient-to-br ${color.from} ${color.to} text-white flex-shrink-0`}>
+                      {THEMES[form.theme].preview}
                     </div>
                   </div>
 
