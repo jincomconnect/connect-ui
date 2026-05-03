@@ -248,8 +248,15 @@ export function Root() {
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
                 <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-neutral-50 transition-colors outline-none">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-800 to-neutral-600 flex items-center justify-center text-white text-sm font-medium">
-                    {mockUser.name.split(" ").map(n => n[0]).join("")}
+                  <div className="relative">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-neutral-800 to-neutral-600 flex items-center justify-center text-white text-sm font-medium">
+                      {mockUser.name.split(" ").map(n => n[0]).join("")}
+                    </div>
+                    {isAdmin && (
+                      <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-amber-400 rounded-full flex items-center justify-center ring-2 ring-white">
+                        <Shield size={9} className="text-white fill-white" />
+                      </div>
+                    )}
                   </div>
                   <ChevronDown size={16} className="text-neutral-600" />
                 </button>
@@ -263,7 +270,15 @@ export function Root() {
                 >
                   {/* User Info */}
                   <div className="px-3 py-2 mb-2 border-b border-neutral-100">
-                    <p className="font-medium text-neutral-900 text-sm">{mockUser.name}</p>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <p className="font-medium text-neutral-900 text-sm">{mockUser.name}</p>
+                      {isAdmin && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold leading-none">
+                          <Shield size={9} className="fill-amber-500 text-amber-500" />
+                          Admin
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-neutral-500 truncate">{mockUser.email}</p>
                   </div>
 
@@ -400,7 +415,14 @@ export function Root() {
                         </div>
                         <div className="flex-1">
                           <h3 className="font-bold text-neutral-900">{mockUser.name}</h3>
-                          <p className="text-sm text-neutral-500">Community Member</p>
+                          {isAdmin ? (
+                            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold mt-0.5">
+                              <Shield size={10} className="fill-amber-500 text-amber-500" />
+                              Administrator
+                            </span>
+                          ) : (
+                            <p className="text-sm text-neutral-500">Community Member</p>
+                          )}
                         </div>
                       </div>
 
